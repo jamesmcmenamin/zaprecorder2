@@ -24,6 +24,7 @@ namespace ZapRecorder2
         public Thread backgroundThread, recordingThread;
         public WoWPoint oldLocation = new WoWPoint(0, 0, 0);
         public bool isRecording = false;
+        public bool chatMessage = false;
 
         public ZapMainForm()
         {
@@ -46,10 +47,45 @@ namespace ZapRecorder2
             onTop.CheckedChanged += new EventHandler(onTop_CheckedChanged);
 
 
+            /*
+            Lua.Events.AttachEvent("MODIFIER_STATE_CHANGED", HandleModifierStateChanged);
+            Log("Registered RControl as hotkey with LUA");
 
-            Log("Initializing completed");
+            //Keys[] registeredHotkey = new Keys[1] { Keys.LControlKey };
+
+            Action hotkeyDelegate = HandleZapHotkey;
+            Hotkeys.RegisterHotkey("Test Hotkey", hotkeyDelegate, Keys.LControlKey);
+            Log("Registered LControl as a hotkey with HB");
+             */
+
         }
 
+        private void WowChatMessage(string message)
+        {
+            if (chatMessage == true)
+            {
+                Lua.DoString("getglobal(\"ChatFrame1\"):AddMessage(\"|cff2dbbc4ZapRecorder2: |cffffffff " + message + "\",0, 0, 0, 0);");
+            }
+
+        }
+        private void HandleZapHotkey()
+        {
+            ZapLog("LControl Pressed from Hotkey class!");
+        }
+
+        /*private void HandleModifierStateChanged(object sender, LuaEventArgs args)
+        {
+
+            if (Convert.ToInt32(args.Args[1]) == 1)
+            {
+                if(args.Args[0].ToString() == "RCTRL") {
+                {
+                    Log("RControl pressed from LUA attachment");
+                }
+            }
+        }
+
+        */
         public void onTop_CheckedChanged(object sender, EventArgs arg)
         {
             if (onTop.Checked == true)
@@ -71,7 +107,7 @@ namespace ZapRecorder2
          * 
          * */
         //Writes to the log
-        public void Log(string msg)
+        public void ZapLog(string msg)
         {
             txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] - " + msg + Environment.NewLine;
         }
@@ -240,6 +276,19 @@ namespace ZapRecorder2
 
             #endregion
 
+            #region Chat Messages
+
+            if (chkChatMessage.Checked)
+            {
+                ZapRecorder2.Properties.Settings.Default.chatMessages = true;
+            }
+            else
+            {
+                ZapRecorder2.Properties.Settings.Default.chatMessages = false;
+            }
+
+            #endregion
+
             #region MinimumDurability
 
             ZapRecorder2.Properties.Settings.Default.minimumDurability = minDurabilityTextbox.Text;
@@ -272,7 +321,7 @@ namespace ZapRecorder2
 
 
             ZapRecorder2.Properties.Settings.Default.Save();
-            Log("Settings saved");
+            ZapLog("Settings saved");
         }
 
         //Loads the settings
@@ -405,6 +454,19 @@ namespace ZapRecorder2
             }
             #endregion
 
+            #region Chat Messages
+            if (ZapRecorder2.Properties.Settings.Default.chatMessages == true)
+            {
+                chkChatMessage.Checked = true;
+                chatMessage = true;
+            }
+            else
+            {
+                chkChatMessage.Checked = false;
+                chatMessage = false;
+            }
+            #endregion
+
             #region OnTop
             if (ZapRecorder2.Properties.Settings.Default.onTop == true)
             {
@@ -447,7 +509,7 @@ namespace ZapRecorder2
 
             #endregion
 
-            Log("Settings loaded");
+            ZapLog("Settings loaded");
         }
 
         //Saves the settings when a setting is changed under the setting tab
@@ -469,7 +531,7 @@ namespace ZapRecorder2
         //Thread to update the labels and shizzle in the background
         public void BackgroundPulse()
         {
-            Log("Background thread started");
+            ZapLog("Background thread started");
 
             while (true)
             {
@@ -542,7 +604,7 @@ namespace ZapRecorder2
                         PlaySound("bloop.wav");
                     }
                     */
-                    Log("Adding: " + getHotspot());
+                    ZapLog("Adding: " + getHotspot());
                     hotspotsList.Add(getHotspot());
 
                     oldLocation = new WoWPoint(ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
@@ -598,6 +660,7 @@ namespace ZapRecorder2
                 isRecording = false;
                 btnRecording.Text = "Start Recording";
                 btnRecording.ForeColor = Color.Black;
+                WowChatMessage("Recording stopped!");
             }
             else
             {
@@ -612,6 +675,8 @@ namespace ZapRecorder2
                     btnRecording.Text = "Stop Recording";
                     btnRecording.ForeColor = Color.Red;
                     //recordLabel.Text = "Recording: Yes";
+                    
+                    WowChatMessage("Recording started!");
                 }
                 catch
                 {
@@ -629,12 +694,12 @@ namespace ZapRecorder2
 
                 if (dlgSaveFile.ShowDialog() == DialogResult.OK)
                 {
-                    Log("Received a save to location of: " + dlgSaveFile.FileName);
+                    ZapLog("Received a save to location of: " + dlgSaveFile.FileName);
 
                     string path = dlgSaveFile.FileName;
 
                     StreamWriter writer = new StreamWriter(path);
-                    Log("Writing profile: " + path);
+                    ZapLog("Writing profile: " + path);
 
                     //BEGINNING OF THE PROFILE WRITING
                     writer.WriteLine("<HBProfile>");
@@ -790,7 +855,7 @@ namespace ZapRecorder2
                     writer.Close();
 
 
-                    Log("Profile writing completed!");
+                    ZapLog("Profile writing completed!");
                 }
                 else
                 {
@@ -815,9 +880,10 @@ namespace ZapRecorder2
             if (MessageBoxHelp("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
             {
                 string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
-                Log("Added: " + tempBlackspot);
+                ZapLog("Added: " + tempBlackspot);
                 blackspotsList.Add(tempBlackspot);
                 UpdateBlackspotList();
+                WowChatMessage("Blackspot added at your location");
             }
         }
 
@@ -826,9 +892,10 @@ namespace ZapRecorder2
             if (MessageBoxHelp("Are you standing next to a mailbox?", this.Text) == true)
             {
                 string tempMailbox = "<Mailbox" + getHotspot().Replace("<Hotspot", "");
-                Log("Adding: " + tempMailbox);
+                ZapLog("Adding: " + tempMailbox);
                 mailboxList.Add(tempMailbox);
                 UpdateMailboxList();
+                WowChatMessage("Mailbox added at your location");
             }
         }
 
@@ -845,14 +912,15 @@ namespace ZapRecorder2
 
                     if (MessageBoxHelp("Do you want to add this repair NPC?\n\n" + tempVendor, this.Text) == true)
                     {
-                        Log("Adding: " + tempVendor);
+                        ZapLog("Adding: " + tempVendor);
                         vendorsList.Add(tempVendor);
                         UpdateRepairList();
+                        WowChatMessage("Repair vendor added at your location");
                     }
                 }
                 else
                 {
-                    Log(ObjectManager.Me.CurrentTarget.Name + " is not a repair NPC");
+                    ZapLog(ObjectManager.Me.CurrentTarget.Name + " is not a repair NPC");
                     MessageBox.Show(ObjectManager.Me.CurrentTarget.Name + " is not a repair NPC");
                 }
             }
@@ -876,7 +944,7 @@ namespace ZapRecorder2
                 mailboxList.Clear();
                 vendorsList.Clear();
 
-                Log("Cleared everything from the current profile");
+                ZapLog("Cleared everything from the current profile");
             }
         }
 
@@ -1002,9 +1070,10 @@ namespace ZapRecorder2
             if (MessageBoxHelp("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
             {
                 string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
-                Log("Added: " + tempBlackspot);
+                ZapLog("Added: " + tempBlackspot);
                 blackspotsList.Add(tempBlackspot);
                 UpdateBlackspotList();
+                WowChatMessage("Blackspot added at your location");
             }
         }
 
@@ -1013,9 +1082,10 @@ namespace ZapRecorder2
             if (MessageBoxHelp("Are you standing next to a mailbox?", this.Text) == true)
             {
                 string tempMailbox = "<Mailbox" + getHotspot().Replace("<Hotspot", "");
-                Log("Adding: " + tempMailbox);
+                ZapLog("Adding: " + tempMailbox);
                 mailboxList.Add(tempMailbox);
                 UpdateMailboxList();
+                WowChatMessage("Mailbox added at your location");
             }
         }
 
@@ -1033,14 +1103,15 @@ namespace ZapRecorder2
 
                     if (MessageBoxHelp("Do you want to add this NPC as a vendor?\n\n" + tempVendor, this.Text) == true)
                     {
-                        Log("Adding: " + tempVendor);
+                        ZapLog("Adding: " + tempVendor);
                         vendorsList.Add(tempVendor);
                         UpdateRepairList();
+                        WowChatMessage("Repair vendor added at your location");
                     }
                 }
                 else
                 {
-                    Log(ObjectManager.Me.CurrentTarget.Name + " is not an RepairMerchant");
+                    ZapLog(ObjectManager.Me.CurrentTarget.Name + " is not an RepairMerchant");
                     MessageBox.Show(ObjectManager.Me.CurrentTarget.Name + " is not an RepairMerchant");
                 }
             }
@@ -1056,7 +1127,7 @@ namespace ZapRecorder2
             {
                 hotspotsList.Reverse();
                 UpdateHotspotList();
-                Log("Reversed hotspots");
+                ZapLog("Reversed hotspots");
             }
         }
 
@@ -1089,7 +1160,7 @@ namespace ZapRecorder2
                     }
 
                     UpdateHotspotList();
-                    Log("Loaded hotspots from profile");
+                    ZapLog("Loaded hotspots from profile");
                 }
             }
         }
@@ -1120,7 +1191,7 @@ namespace ZapRecorder2
                     }
 
                     UpdateBlackspotList();
-                    Log("Loaded blackspots from profile");
+                    ZapLog("Loaded blackspots from profile");
                 }
             }
         }
@@ -1151,7 +1222,7 @@ namespace ZapRecorder2
                     }
 
                     UpdateRepairList();
-                    Log("Loaded vendors from profile");
+                    ZapLog("Loaded vendors from profile");
                 }
             }
         }
@@ -1182,7 +1253,7 @@ namespace ZapRecorder2
                     }
 
                     UpdateMailboxList();
-                    Log("Loaded mailboxes from profile");
+                    ZapLog("Loaded mailboxes from profile");
                 }
             }
         }
@@ -1191,6 +1262,29 @@ namespace ZapRecorder2
         {
             lblLocation.Text = "X = " + ObjectManager.Me.Location.X + ", Y = " + ObjectManager.Me.Location.Y + ", Z = " + ObjectManager.Me.Location.Z;
         }
+
+        private void btnAddHotspot_Click(object sender, EventArgs e)
+        {
+            ZapLog("Manually Adding: " + getHotspot());
+            hotspotsList.Add(getHotspot());
+            UpdateHotspotList();
+
+        }
+
+        private void chkChatMessage_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkChatMessage.Checked == true)
+            {
+                chatMessage = true;
+                Logging.Write("Turning on chat messages.");
+            }
+            else
+            {
+                chatMessage = false;
+                ZapLog("Turning off chat messages.");
+            }
+        }
+
 
 
 
