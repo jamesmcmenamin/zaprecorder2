@@ -30,6 +30,7 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
+            this.btnAddHotspot = new System.Windows.Forms.Button();
             this.btnLocRefresh = new System.Windows.Forms.Button();
             this.btnSaveProfile = new System.Windows.Forms.Button();
             this.btnAddBlackspot = new System.Windows.Forms.Button();
@@ -38,6 +39,7 @@
             this.btnRecording = new System.Windows.Forms.Button();
             this.btnAddRepair = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.lblLocation = new System.Windows.Forms.Label();
             this.lblMailboxes = new System.Windows.Forms.Label();
             this.lblVendors = new System.Windows.Forms.Label();
@@ -94,7 +96,7 @@
             this.listRepair = new System.Windows.Forms.ListBox();
             this.dlgSaveFile = new System.Windows.Forms.SaveFileDialog();
             this.txtLog = new System.Windows.Forms.RichTextBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.chkChatMessage = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -122,6 +124,8 @@
             // 
             // tabMain
             // 
+            this.tabMain.Controls.Add(this.chkChatMessage);
+            this.tabMain.Controls.Add(this.btnAddHotspot);
             this.tabMain.Controls.Add(this.btnLocRefresh);
             this.tabMain.Controls.Add(this.btnSaveProfile);
             this.tabMain.Controls.Add(this.btnAddBlackspot);
@@ -138,6 +142,16 @@
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
             // 
+            // btnAddHotspot
+            // 
+            this.btnAddHotspot.Location = new System.Drawing.Point(152, 19);
+            this.btnAddHotspot.Name = "btnAddHotspot";
+            this.btnAddHotspot.Size = new System.Drawing.Size(111, 23);
+            this.btnAddHotspot.TabIndex = 20;
+            this.btnAddHotspot.Text = "Add Single Hotspot";
+            this.btnAddHotspot.UseVisualStyleBackColor = true;
+            this.btnAddHotspot.Click += new System.EventHandler(this.btnAddHotspot_Click);
+            // 
             // btnLocRefresh
             // 
             this.btnLocRefresh.Location = new System.Drawing.Point(285, 134);
@@ -150,7 +164,7 @@
             // 
             // btnSaveProfile
             // 
-            this.btnSaveProfile.Location = new System.Drawing.Point(152, 19);
+            this.btnSaveProfile.Location = new System.Drawing.Point(152, 118);
             this.btnSaveProfile.Name = "btnSaveProfile";
             this.btnSaveProfile.Size = new System.Drawing.Size(111, 23);
             this.btnSaveProfile.TabIndex = 17;
@@ -170,7 +184,7 @@
             // 
             // btnClearEverything
             // 
-            this.btnClearEverything.Location = new System.Drawing.Point(152, 52);
+            this.btnClearEverything.Location = new System.Drawing.Point(152, 85);
             this.btnClearEverything.Name = "btnClearEverything";
             this.btnClearEverything.Size = new System.Drawing.Size(111, 23);
             this.btnClearEverything.TabIndex = 18;
@@ -222,6 +236,16 @@
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Profile Info";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(6, 57);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 16);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Location: ";
             // 
             // lblLocation
             // 
@@ -407,7 +431,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(266, 145);
+            this.label1.Location = new System.Drawing.Point(274, 142);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(322, 13);
             this.label1.TabIndex = 12;
@@ -818,15 +842,18 @@
             this.txtLog.TabIndex = 20;
             this.txtLog.Text = "";
             // 
-            // label2
+            // chkChatMessage
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(6, 57);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 16);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Location: ";
+            this.chkChatMessage.AutoSize = true;
+            this.chkChatMessage.Checked = true;
+            this.chkChatMessage.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkChatMessage.Location = new System.Drawing.Point(437, 138);
+            this.chkChatMessage.Name = "chkChatMessage";
+            this.chkChatMessage.Size = new System.Drawing.Size(99, 17);
+            this.chkChatMessage.TabIndex = 25;
+            this.chkChatMessage.Text = "Chat Messages";
+            this.chkChatMessage.UseVisualStyleBackColor = true;
+            this.chkChatMessage.CheckedChanged += new System.EventHandler(this.chkChatMessage_CheckedChanged);
             // 
             // ZapMainForm
             // 
@@ -841,6 +868,7 @@
             this.Text = "ZapRecorder2";
             this.tabControl1.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
+            this.tabMain.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabSettings.ResumeLayout(false);
@@ -923,6 +951,8 @@
         private System.Windows.Forms.Label lblLocation;
         private System.Windows.Forms.Button btnLocRefresh;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnAddHotspot;
+        private System.Windows.Forms.CheckBox chkChatMessage;
     }
 }
 
