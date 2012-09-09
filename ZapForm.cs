@@ -1189,7 +1189,7 @@ namespace ZapRecorder2
 
         private void btnLocRefresh_Click(object sender, EventArgs e)
         {
-            lblLocation.Text = "Location: " + ObjectManager.Me.Location.X + "X, " + ObjectManager.Me.Location.Y + "Y";
+            lblLocation.Text = "X = " + ObjectManager.Me.Location.X + ", Y = " + ObjectManager.Me.Location.Y + ", Z = " + ObjectManager.Me.Location.Z;
         }
 
 

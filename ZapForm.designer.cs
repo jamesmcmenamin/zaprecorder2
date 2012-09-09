@@ -94,6 +94,7 @@
             this.listRepair = new System.Windows.Forms.ListBox();
             this.dlgSaveFile = new System.Windows.Forms.SaveFileDialog();
             this.txtLog = new System.Windows.Forms.RichTextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -139,7 +140,7 @@
             // 
             // btnLocRefresh
             // 
-            this.btnLocRefresh.Location = new System.Drawing.Point(285, 114);
+            this.btnLocRefresh.Location = new System.Drawing.Point(285, 134);
             this.btnLocRefresh.Name = "btnLocRefresh";
             this.btnLocRefresh.Size = new System.Drawing.Size(111, 23);
             this.btnLocRefresh.TabIndex = 19;
@@ -209,6 +210,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.lblLocation);
             this.groupBox1.Controls.Add(this.lblMailboxes);
             this.groupBox1.Controls.Add(this.lblVendors);
@@ -216,7 +218,7 @@
             this.groupBox1.Controls.Add(this.lblBlackspots);
             this.groupBox1.Location = new System.Drawing.Point(285, 19);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(251, 89);
+            this.groupBox1.Size = new System.Drawing.Size(251, 109);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Profile Info";
@@ -225,11 +227,10 @@
             // 
             this.lblLocation.AutoSize = true;
             this.lblLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLocation.Location = new System.Drawing.Point(7, 57);
+            this.lblLocation.Location = new System.Drawing.Point(6, 73);
             this.lblLocation.Name = "lblLocation";
-            this.lblLocation.Size = new System.Drawing.Size(65, 16);
+            this.lblLocation.Size = new System.Drawing.Size(0, 16);
             this.lblLocation.TabIndex = 4;
-            this.lblLocation.Text = "Location: ";
             // 
             // lblMailboxes
             // 
@@ -565,6 +566,7 @@
             // 
             // btnLoadHotspots
             // 
+            this.btnLoadHotspots.Enabled = false;
             this.btnLoadHotspots.Location = new System.Drawing.Point(490, 108);
             this.btnLoadHotspots.Name = "btnLoadHotspots";
             this.btnLoadHotspots.Size = new System.Drawing.Size(95, 23);
@@ -627,6 +629,7 @@
             // 
             // btnLoadBlackspots
             // 
+            this.btnLoadBlackspots.Enabled = false;
             this.btnLoadBlackspots.Location = new System.Drawing.Point(490, 108);
             this.btnLoadBlackspots.Name = "btnLoadBlackspots";
             this.btnLoadBlackspots.Size = new System.Drawing.Size(95, 23);
@@ -689,6 +692,7 @@
             // 
             // btnLoadMailboxes
             // 
+            this.btnLoadMailboxes.Enabled = false;
             this.btnLoadMailboxes.Location = new System.Drawing.Point(490, 108);
             this.btnLoadMailboxes.Name = "btnLoadMailboxes";
             this.btnLoadMailboxes.Size = new System.Drawing.Size(95, 23);
@@ -751,6 +755,7 @@
             // 
             // btnLoadRepair
             // 
+            this.btnLoadRepair.Enabled = false;
             this.btnLoadRepair.Location = new System.Drawing.Point(490, 108);
             this.btnLoadRepair.Name = "btnLoadRepair";
             this.btnLoadRepair.Size = new System.Drawing.Size(95, 23);
@@ -812,6 +817,16 @@
             this.txtLog.Size = new System.Drawing.Size(604, 167);
             this.txtLog.TabIndex = 20;
             this.txtLog.Text = "";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(6, 57);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 16);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Location: ";
             // 
             // ZapMainForm
             // 
@@ -907,6 +922,7 @@
         private System.Windows.Forms.ListBox listRepair;
         private System.Windows.Forms.Label lblLocation;
         private System.Windows.Forms.Button btnLocRefresh;
+        private System.Windows.Forms.Label label2;
     }
 }
 
