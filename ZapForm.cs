@@ -80,7 +80,7 @@ namespace ZapRecorder2
             //Action ZapCallback = () => HandleZapHotkey();
             //ZapCallback.Invoke(); // Successfully prints to log
 
-            try
+            /*try
             {
                 Action ZapCallback = this.HandleZapHotkey;
 
@@ -94,6 +94,7 @@ namespace ZapRecorder2
             {
                 ZapException(ex, "Setting hotkeys");
             }
+             * */
 
         }
 
@@ -692,7 +693,6 @@ namespace ZapRecorder2
                         oldLocation = new WoWPoint(ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
                     
                         AddHotspot();
-                        hotspotsList.Add(getHotspot());
 
                         // Delay according to recording time
                         Thread.Sleep(Convert.ToInt32(recordingTimeTextbox.Text));
@@ -705,7 +705,20 @@ namespace ZapRecorder2
                 }
             } catch(Exception ex) {
                 ZapException(ex,"RecordingPulse");
+                RestartRecordingPulse();
+
             }
+        }
+
+        private void RestartRecordingPulse()
+        {
+            isRecording = true;
+            recordingThread = new Thread(new ThreadStart(RecordingPulse));
+            recordingThread.IsBackground = true;
+            recordingThread.Start();
+
+            ShowWoWChatMessage("Recording pulse crashed! It has been restarted.");
+            ZapLog("RecordingPulse restarted after a crash!");
         }
 
         public bool HasMovedNeedsHotspot()
