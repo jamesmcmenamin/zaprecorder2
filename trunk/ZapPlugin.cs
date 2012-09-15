@@ -12,7 +12,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 0, 1); } }
+        public override Version Version { get { return new Version(1, 1, 0); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -26,21 +26,20 @@ namespace ZapRecorder2
         public override void Initialize()
         {
             Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
-        }
+       } 
 
         public override void Pulse()
         {
-            if (!hasBeenInitialized)
-            {
-                hasBeenInitialized = true;
-                Initialize();
-            }
+
         }
+
+        
 
         public override void OnButtonPress()
         {
             if (!ZapPlugin.isHidden)
             {
+                // First time button press, create form.
                 if (!mainFormLoaded)
                 {
                     //We need to create a new form
@@ -51,7 +50,7 @@ namespace ZapRecorder2
             }
             else
             {
-                //Lets create open the old form
+                // Reload existing form
                 mainForm.Show();
             }
         }

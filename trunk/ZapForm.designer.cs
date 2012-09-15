@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.btnAddHotspot = new System.Windows.Forms.Button();
             this.btnLocRefresh = new System.Windows.Forms.Button();
-            this.btnSaveProfile = new System.Windows.Forms.Button();
             this.btnAddBlackspot = new System.Windows.Forms.Button();
             this.btnClearEverything = new System.Windows.Forms.Button();
             this.btnAddMailbox = new System.Windows.Forms.Button();
@@ -45,21 +45,23 @@
             this.lblVendors = new System.Windows.Forms.Label();
             this.lblHotspots = new System.Windows.Forms.Label();
             this.lblBlackspots = new System.Windows.Forms.Label();
-            this.tabSettings = new System.Windows.Forms.TabPage();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
-            this.saveSettingsButton = new System.Windows.Forms.Button();
-            this.addIfMovedTextbox = new System.Windows.Forms.TextBox();
-            this.recordingTimeTextbox = new System.Windows.Forms.TextBox();
-            this.minBagSlotTextbox = new System.Windows.Forms.TextBox();
-            this.minDurabilityTextbox = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.tabProfileInfo = new System.Windows.Forms.TabPage();
+            this.txtFactions = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtMaxLevel = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtMinLevel = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtProfileAuthor = new System.Windows.Forms.TextBox();
+            this.txtProfileName = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.btnSaveProfile = new System.Windows.Forms.Button();
+            this.btnOpenProfile = new System.Windows.Forms.Button();
+            this.txtMinFreeBagSlots = new System.Windows.Forms.TextBox();
+            this.txtMinDurability = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.minimumDurabilityLabel = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.onTop = new System.Windows.Forms.CheckBox();
-            this.playSound = new System.Windows.Forms.CheckBox();
             this.sellPurple = new System.Windows.Forms.CheckBox();
             this.sellBlue = new System.Windows.Forms.CheckBox();
             this.sellGreen = new System.Windows.Forms.CheckBox();
@@ -94,28 +96,51 @@
             this.btnClearSelectedRepair = new System.Windows.Forms.Button();
             this.btnClearAllRepair = new System.Windows.Forms.Button();
             this.listRepair = new System.Windows.Forms.ListBox();
+            this.tabTest = new System.Windows.Forms.TabPage();
+            this.btnAddHotspotAtIndex = new System.Windows.Forms.Button();
+            this.btnReplaceHotspot = new System.Windows.Forms.Button();
+            this.btnDeleteHotspot = new System.Windows.Forms.Button();
+            this.btnPrevHotspot = new System.Windows.Forms.Button();
+            this.btnGoToHotspot = new System.Windows.Forms.Button();
+            this.btnNextHotspot = new System.Windows.Forms.Button();
+            this.listTestHotspots = new System.Windows.Forms.ListBox();
+            this.tabSettings = new System.Windows.Forms.TabPage();
+            this.chkChatMessage = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.addIfMovedTextbox = new System.Windows.Forms.TextBox();
+            this.recordingTimeTextbox = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.onTop = new System.Windows.Forms.CheckBox();
+            this.playSound = new System.Windows.Forms.CheckBox();
             this.dlgSaveFile = new System.Windows.Forms.SaveFileDialog();
             this.txtLog = new System.Windows.Forms.RichTextBox();
-            this.chkChatMessage = new System.Windows.Forms.CheckBox();
+            this.helpTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.tabControl1.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.tabSettings.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.tabProfileInfo.SuspendLayout();
             this.tabHotspots.SuspendLayout();
             this.tabBlackspots.SuspendLayout();
             this.tabMailboxes.SuspendLayout();
             this.tabRepair.SuspendLayout();
+            this.tabTest.SuspendLayout();
+            this.tabSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabMain);
-            this.tabControl1.Controls.Add(this.tabSettings);
+            this.tabControl1.Controls.Add(this.tabProfileInfo);
             this.tabControl1.Controls.Add(this.tabHotspots);
             this.tabControl1.Controls.Add(this.tabBlackspots);
             this.tabControl1.Controls.Add(this.tabMailboxes);
             this.tabControl1.Controls.Add(this.tabRepair);
+            this.tabControl1.Controls.Add(this.tabTest);
+            this.tabControl1.Controls.Add(this.tabSettings);
             this.tabControl1.Location = new System.Drawing.Point(0, 1);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -124,10 +149,8 @@
             // 
             // tabMain
             // 
-            this.tabMain.Controls.Add(this.chkChatMessage);
             this.tabMain.Controls.Add(this.btnAddHotspot);
             this.tabMain.Controls.Add(this.btnLocRefresh);
-            this.tabMain.Controls.Add(this.btnSaveProfile);
             this.tabMain.Controls.Add(this.btnAddBlackspot);
             this.tabMain.Controls.Add(this.btnClearEverything);
             this.tabMain.Controls.Add(this.btnAddMailbox);
@@ -162,16 +185,6 @@
             this.btnLocRefresh.UseVisualStyleBackColor = true;
             this.btnLocRefresh.Click += new System.EventHandler(this.btnLocRefresh_Click);
             // 
-            // btnSaveProfile
-            // 
-            this.btnSaveProfile.Location = new System.Drawing.Point(152, 118);
-            this.btnSaveProfile.Name = "btnSaveProfile";
-            this.btnSaveProfile.Size = new System.Drawing.Size(111, 23);
-            this.btnSaveProfile.TabIndex = 17;
-            this.btnSaveProfile.Text = "Save Profile";
-            this.btnSaveProfile.UseVisualStyleBackColor = true;
-            this.btnSaveProfile.Click += new System.EventHandler(this.btnSaveProfile_Click);
-            // 
             // btnAddBlackspot
             // 
             this.btnAddBlackspot.Location = new System.Drawing.Point(17, 52);
@@ -184,7 +197,7 @@
             // 
             // btnClearEverything
             // 
-            this.btnClearEverything.Location = new System.Drawing.Point(152, 85);
+            this.btnClearEverything.Location = new System.Drawing.Point(152, 118);
             this.btnClearEverything.Name = "btnClearEverything";
             this.btnClearEverything.Size = new System.Drawing.Size(111, 23);
             this.btnClearEverything.TabIndex = 18;
@@ -296,124 +309,164 @@
             this.lblBlackspots.TabIndex = 0;
             this.lblBlackspots.Text = "Blackspots: 0";
             // 
-            // tabSettings
+            // tabProfileInfo
             // 
-            this.tabSettings.Controls.Add(this.numericUpDown1);
-            this.tabSettings.Controls.Add(this.label6);
-            this.tabSettings.Controls.Add(this.saveSettingsButton);
-            this.tabSettings.Controls.Add(this.addIfMovedTextbox);
-            this.tabSettings.Controls.Add(this.recordingTimeTextbox);
-            this.tabSettings.Controls.Add(this.minBagSlotTextbox);
-            this.tabSettings.Controls.Add(this.minDurabilityTextbox);
-            this.tabSettings.Controls.Add(this.label5);
-            this.tabSettings.Controls.Add(this.label4);
-            this.tabSettings.Controls.Add(this.label3);
-            this.tabSettings.Controls.Add(this.minimumDurabilityLabel);
-            this.tabSettings.Controls.Add(this.label1);
-            this.tabSettings.Controls.Add(this.onTop);
-            this.tabSettings.Controls.Add(this.playSound);
-            this.tabSettings.Controls.Add(this.sellPurple);
-            this.tabSettings.Controls.Add(this.sellBlue);
-            this.tabSettings.Controls.Add(this.sellGreen);
-            this.tabSettings.Controls.Add(this.sellWhite);
-            this.tabSettings.Controls.Add(this.sellGrey);
-            this.tabSettings.Controls.Add(this.mailPurple);
-            this.tabSettings.Controls.Add(this.mailBlue);
-            this.tabSettings.Controls.Add(this.mailGreen);
-            this.tabSettings.Controls.Add(this.mailWhite);
-            this.tabSettings.Controls.Add(this.mailGrey);
-            this.tabSettings.Location = new System.Drawing.Point(4, 22);
-            this.tabSettings.Name = "tabSettings";
-            this.tabSettings.Size = new System.Drawing.Size(596, 163);
-            this.tabSettings.TabIndex = 2;
-            this.tabSettings.Text = "Settings";
-            this.tabSettings.UseVisualStyleBackColor = true;
+            this.tabProfileInfo.Controls.Add(this.txtFactions);
+            this.tabProfileInfo.Controls.Add(this.label11);
+            this.tabProfileInfo.Controls.Add(this.txtMaxLevel);
+            this.tabProfileInfo.Controls.Add(this.label10);
+            this.tabProfileInfo.Controls.Add(this.txtMinLevel);
+            this.tabProfileInfo.Controls.Add(this.label9);
+            this.tabProfileInfo.Controls.Add(this.txtProfileAuthor);
+            this.tabProfileInfo.Controls.Add(this.txtProfileName);
+            this.tabProfileInfo.Controls.Add(this.label8);
+            this.tabProfileInfo.Controls.Add(this.label7);
+            this.tabProfileInfo.Controls.Add(this.btnSaveProfile);
+            this.tabProfileInfo.Controls.Add(this.btnOpenProfile);
+            this.tabProfileInfo.Controls.Add(this.txtMinFreeBagSlots);
+            this.tabProfileInfo.Controls.Add(this.txtMinDurability);
+            this.tabProfileInfo.Controls.Add(this.label3);
+            this.tabProfileInfo.Controls.Add(this.minimumDurabilityLabel);
+            this.tabProfileInfo.Controls.Add(this.sellPurple);
+            this.tabProfileInfo.Controls.Add(this.sellBlue);
+            this.tabProfileInfo.Controls.Add(this.sellGreen);
+            this.tabProfileInfo.Controls.Add(this.sellWhite);
+            this.tabProfileInfo.Controls.Add(this.sellGrey);
+            this.tabProfileInfo.Controls.Add(this.mailPurple);
+            this.tabProfileInfo.Controls.Add(this.mailBlue);
+            this.tabProfileInfo.Controls.Add(this.mailGreen);
+            this.tabProfileInfo.Controls.Add(this.mailWhite);
+            this.tabProfileInfo.Controls.Add(this.mailGrey);
+            this.tabProfileInfo.Location = new System.Drawing.Point(4, 22);
+            this.tabProfileInfo.Name = "tabProfileInfo";
+            this.tabProfileInfo.Size = new System.Drawing.Size(596, 163);
+            this.tabProfileInfo.TabIndex = 2;
+            this.tabProfileInfo.Text = "Profile Info";
+            this.tabProfileInfo.UseVisualStyleBackColor = true;
             // 
-            // numericUpDown1
+            // txtFactions
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(297, 103);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(100, 20);
-            this.numericUpDown1.TabIndex = 23;
-            this.numericUpDown1.Value = new decimal(new int[] {
-            20,
-            0,
-            0,
-            0});
+            this.txtFactions.Location = new System.Drawing.Point(528, 108);
+            this.txtFactions.Name = "txtFactions";
+            this.txtFactions.Size = new System.Drawing.Size(57, 20);
+            this.txtFactions.TabIndex = 31;
+            this.txtFactions.Text = "99999";
             // 
-            // label6
+            // label11
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(176, 105);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(90, 13);
-            this.label6.TabIndex = 22;
-            this.label6.Text = "Blackspot Radius";
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(432, 111);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(47, 13);
+            this.label11.TabIndex = 30;
+            this.label11.Text = "Factions";
             // 
-            // saveSettingsButton
+            // txtMaxLevel
             // 
-            this.saveSettingsButton.Location = new System.Drawing.Point(403, 8);
-            this.saveSettingsButton.Name = "saveSettingsButton";
-            this.saveSettingsButton.Size = new System.Drawing.Size(185, 23);
-            this.saveSettingsButton.TabIndex = 21;
-            this.saveSettingsButton.Text = "Save Settings";
-            this.saveSettingsButton.UseVisualStyleBackColor = true;
-            this.saveSettingsButton.Click += new System.EventHandler(this.saveSettingsButton_Click);
+            this.txtMaxLevel.Location = new System.Drawing.Point(554, 83);
+            this.txtMaxLevel.Name = "txtMaxLevel";
+            this.txtMaxLevel.Size = new System.Drawing.Size(31, 20);
+            this.txtMaxLevel.TabIndex = 29;
+            this.txtMaxLevel.Text = "91";
             // 
-            // addIfMovedTextbox
+            // label10
             // 
-            this.addIfMovedTextbox.Location = new System.Drawing.Point(297, 78);
-            this.addIfMovedTextbox.Name = "addIfMovedTextbox";
-            this.addIfMovedTextbox.Size = new System.Drawing.Size(100, 20);
-            this.addIfMovedTextbox.TabIndex = 20;
-            this.addIfMovedTextbox.Text = "30";
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(432, 86);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(80, 13);
+            this.label10.TabIndex = 28;
+            this.label10.Text = "Maximum Level";
             // 
-            // recordingTimeTextbox
+            // txtMinLevel
             // 
-            this.recordingTimeTextbox.Location = new System.Drawing.Point(297, 55);
-            this.recordingTimeTextbox.Name = "recordingTimeTextbox";
-            this.recordingTimeTextbox.Size = new System.Drawing.Size(100, 20);
-            this.recordingTimeTextbox.TabIndex = 19;
-            this.recordingTimeTextbox.Text = "2000";
+            this.txtMinLevel.Location = new System.Drawing.Point(554, 61);
+            this.txtMinLevel.Name = "txtMinLevel";
+            this.txtMinLevel.Size = new System.Drawing.Size(31, 20);
+            this.txtMinLevel.TabIndex = 27;
+            this.txtMinLevel.Text = "1";
             // 
-            // minBagSlotTextbox
+            // label9
             // 
-            this.minBagSlotTextbox.Location = new System.Drawing.Point(297, 32);
-            this.minBagSlotTextbox.Name = "minBagSlotTextbox";
-            this.minBagSlotTextbox.Size = new System.Drawing.Size(100, 20);
-            this.minBagSlotTextbox.TabIndex = 18;
-            this.minBagSlotTextbox.Text = "1";
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(432, 64);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(77, 13);
+            this.label9.TabIndex = 26;
+            this.label9.Text = "Minimum Level";
             // 
-            // minDurabilityTextbox
+            // txtProfileAuthor
             // 
-            this.minDurabilityTextbox.Location = new System.Drawing.Point(297, 9);
-            this.minDurabilityTextbox.Name = "minDurabilityTextbox";
-            this.minDurabilityTextbox.Size = new System.Drawing.Size(100, 20);
-            this.minDurabilityTextbox.TabIndex = 17;
-            this.minDurabilityTextbox.Text = "0.4";
+            this.txtProfileAuthor.Location = new System.Drawing.Point(81, 65);
+            this.txtProfileAuthor.Name = "txtProfileAuthor";
+            this.txtProfileAuthor.Size = new System.Drawing.Size(182, 20);
+            this.txtProfileAuthor.TabIndex = 25;
             // 
-            // label5
+            // txtProfileName
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(175, 81);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(69, 13);
-            this.label5.TabIndex = 16;
-            this.label5.Text = "Add if moved";
+            this.txtProfileName.Location = new System.Drawing.Point(81, 42);
+            this.txtProfileName.Name = "txtProfileName";
+            this.txtProfileName.Size = new System.Drawing.Size(182, 20);
+            this.txtProfileName.TabIndex = 24;
             // 
-            // label4
+            // label8
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(175, 58);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(107, 13);
-            this.label4.TabIndex = 15;
-            this.label4.Text = "Recorder Sleep Time";
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(8, 69);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(70, 13);
+            this.label8.TabIndex = 23;
+            this.label8.Text = "Profile Author";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(8, 44);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(70, 13);
+            this.label7.TabIndex = 22;
+            this.label7.Text = "Profile Name:";
+            // 
+            // btnSaveProfile
+            // 
+            this.btnSaveProfile.Location = new System.Drawing.Point(135, 13);
+            this.btnSaveProfile.Name = "btnSaveProfile";
+            this.btnSaveProfile.Size = new System.Drawing.Size(111, 23);
+            this.btnSaveProfile.TabIndex = 21;
+            this.btnSaveProfile.Text = "Save Profile";
+            this.btnSaveProfile.UseVisualStyleBackColor = true;
+            this.btnSaveProfile.Click += new System.EventHandler(this.btnSaveProfile_Click);
+            // 
+            // btnOpenProfile
+            // 
+            this.btnOpenProfile.Location = new System.Drawing.Point(8, 12);
+            this.btnOpenProfile.Name = "btnOpenProfile";
+            this.btnOpenProfile.Size = new System.Drawing.Size(111, 23);
+            this.btnOpenProfile.TabIndex = 20;
+            this.btnOpenProfile.Text = "Open Profile";
+            this.btnOpenProfile.UseVisualStyleBackColor = true;
+            this.btnOpenProfile.Click += new System.EventHandler(this.btnOpenProfile_Click);
+            // 
+            // txtMinFreeBagSlots
+            // 
+            this.txtMinFreeBagSlots.Location = new System.Drawing.Point(554, 37);
+            this.txtMinFreeBagSlots.Name = "txtMinFreeBagSlots";
+            this.txtMinFreeBagSlots.Size = new System.Drawing.Size(31, 20);
+            this.txtMinFreeBagSlots.TabIndex = 18;
+            this.txtMinFreeBagSlots.Text = "1";
+            // 
+            // txtMinDurability
+            // 
+            this.txtMinDurability.Location = new System.Drawing.Point(554, 14);
+            this.txtMinDurability.Name = "txtMinDurability";
+            this.txtMinDurability.Size = new System.Drawing.Size(31, 20);
+            this.txtMinDurability.TabIndex = 17;
+            this.txtMinDurability.Text = "0.4";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(175, 35);
+            this.label3.Location = new System.Drawing.Point(432, 40);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(120, 13);
             this.label3.TabIndex = 14;
@@ -422,49 +475,16 @@
             // minimumDurabilityLabel
             // 
             this.minimumDurabilityLabel.AutoSize = true;
-            this.minimumDurabilityLabel.Location = new System.Drawing.Point(175, 12);
+            this.minimumDurabilityLabel.Location = new System.Drawing.Point(432, 17);
             this.minimumDurabilityLabel.Name = "minimumDurabilityLabel";
             this.minimumDurabilityLabel.Size = new System.Drawing.Size(94, 13);
             this.minimumDurabilityLabel.TabIndex = 13;
             this.minimumDurabilityLabel.Text = "Minimum Durability";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(274, 142);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(322, 13);
-            this.label1.TabIndex = 12;
-            this.label1.Text = "* Settings are also automatically saved when you close the window";
-            // 
-            // onTop
-            // 
-            this.onTop.AutoSize = true;
-            this.onTop.Checked = true;
-            this.onTop.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.onTop.Location = new System.Drawing.Point(94, 138);
-            this.onTop.Name = "onTop";
-            this.onTop.Size = new System.Drawing.Size(59, 17);
-            this.onTop.TabIndex = 11;
-            this.onTop.Text = "OnTop";
-            this.onTop.UseVisualStyleBackColor = true;
-            // 
-            // playSound
-            // 
-            this.playSound.AutoSize = true;
-            this.playSound.Checked = true;
-            this.playSound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.playSound.Location = new System.Drawing.Point(8, 138);
-            this.playSound.Name = "playSound";
-            this.playSound.Size = new System.Drawing.Size(80, 17);
-            this.playSound.TabIndex = 10;
-            this.playSound.Text = "Play Sound";
-            this.playSound.UseVisualStyleBackColor = true;
-            // 
             // sellPurple
             // 
             this.sellPurple.AutoSize = true;
-            this.sellPurple.Location = new System.Drawing.Point(94, 104);
+            this.sellPurple.Location = new System.Drawing.Point(355, 109);
             this.sellPurple.Name = "sellPurple";
             this.sellPurple.Size = new System.Drawing.Size(76, 17);
             this.sellPurple.TabIndex = 9;
@@ -474,7 +494,7 @@
             // sellBlue
             // 
             this.sellBlue.AutoSize = true;
-            this.sellBlue.Location = new System.Drawing.Point(94, 81);
+            this.sellBlue.Location = new System.Drawing.Point(355, 86);
             this.sellBlue.Name = "sellBlue";
             this.sellBlue.Size = new System.Drawing.Size(67, 17);
             this.sellBlue.TabIndex = 8;
@@ -484,7 +504,7 @@
             // sellGreen
             // 
             this.sellGreen.AutoSize = true;
-            this.sellGreen.Location = new System.Drawing.Point(94, 58);
+            this.sellGreen.Location = new System.Drawing.Point(355, 63);
             this.sellGreen.Name = "sellGreen";
             this.sellGreen.Size = new System.Drawing.Size(75, 17);
             this.sellGreen.TabIndex = 7;
@@ -496,7 +516,7 @@
             this.sellWhite.AutoSize = true;
             this.sellWhite.Checked = true;
             this.sellWhite.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.sellWhite.Location = new System.Drawing.Point(94, 35);
+            this.sellWhite.Location = new System.Drawing.Point(355, 40);
             this.sellWhite.Name = "sellWhite";
             this.sellWhite.Size = new System.Drawing.Size(74, 17);
             this.sellWhite.TabIndex = 6;
@@ -508,7 +528,7 @@
             this.sellGrey.AutoSize = true;
             this.sellGrey.Checked = true;
             this.sellGrey.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.sellGrey.Location = new System.Drawing.Point(94, 12);
+            this.sellGrey.Location = new System.Drawing.Point(355, 17);
             this.sellGrey.Name = "sellGrey";
             this.sellGrey.Size = new System.Drawing.Size(68, 17);
             this.sellGrey.TabIndex = 5;
@@ -520,7 +540,7 @@
             this.mailPurple.AutoSize = true;
             this.mailPurple.Checked = true;
             this.mailPurple.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.mailPurple.Location = new System.Drawing.Point(8, 104);
+            this.mailPurple.Location = new System.Drawing.Point(269, 109);
             this.mailPurple.Name = "mailPurple";
             this.mailPurple.Size = new System.Drawing.Size(78, 17);
             this.mailPurple.TabIndex = 4;
@@ -532,7 +552,7 @@
             this.mailBlue.AutoSize = true;
             this.mailBlue.Checked = true;
             this.mailBlue.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.mailBlue.Location = new System.Drawing.Point(8, 81);
+            this.mailBlue.Location = new System.Drawing.Point(269, 86);
             this.mailBlue.Name = "mailBlue";
             this.mailBlue.Size = new System.Drawing.Size(69, 17);
             this.mailBlue.TabIndex = 3;
@@ -544,7 +564,7 @@
             this.mailGreen.AutoSize = true;
             this.mailGreen.Checked = true;
             this.mailGreen.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.mailGreen.Location = new System.Drawing.Point(8, 58);
+            this.mailGreen.Location = new System.Drawing.Point(269, 63);
             this.mailGreen.Name = "mailGreen";
             this.mailGreen.Size = new System.Drawing.Size(77, 17);
             this.mailGreen.TabIndex = 2;
@@ -556,7 +576,7 @@
             this.mailWhite.AutoSize = true;
             this.mailWhite.Checked = true;
             this.mailWhite.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.mailWhite.Location = new System.Drawing.Point(8, 35);
+            this.mailWhite.Location = new System.Drawing.Point(269, 40);
             this.mailWhite.Name = "mailWhite";
             this.mailWhite.Size = new System.Drawing.Size(76, 17);
             this.mailWhite.TabIndex = 1;
@@ -566,7 +586,7 @@
             // mailGrey
             // 
             this.mailGrey.AutoSize = true;
-            this.mailGrey.Location = new System.Drawing.Point(8, 12);
+            this.mailGrey.Location = new System.Drawing.Point(269, 17);
             this.mailGrey.Name = "mailGrey";
             this.mailGrey.Size = new System.Drawing.Size(70, 17);
             this.mailGrey.TabIndex = 0;
@@ -590,12 +610,12 @@
             // 
             // btnLoadHotspots
             // 
-            this.btnLoadHotspots.Enabled = false;
             this.btnLoadHotspots.Location = new System.Drawing.Point(490, 108);
             this.btnLoadHotspots.Name = "btnLoadHotspots";
             this.btnLoadHotspots.Size = new System.Drawing.Size(95, 23);
             this.btnLoadHotspots.TabIndex = 19;
             this.btnLoadHotspots.Text = "Load";
+            this.helpTooltip.SetToolTip(this.btnLoadHotspots, "Load hotspots from an existing profile");
             this.btnLoadHotspots.UseVisualStyleBackColor = true;
             this.btnLoadHotspots.Click += new System.EventHandler(this.btnLoadHotspots_Click);
             // 
@@ -826,6 +846,213 @@
             this.listRepair.Size = new System.Drawing.Size(472, 121);
             this.listRepair.TabIndex = 19;
             // 
+            // tabTest
+            // 
+            this.tabTest.Controls.Add(this.btnAddHotspotAtIndex);
+            this.tabTest.Controls.Add(this.btnReplaceHotspot);
+            this.tabTest.Controls.Add(this.btnDeleteHotspot);
+            this.tabTest.Controls.Add(this.btnPrevHotspot);
+            this.tabTest.Controls.Add(this.btnGoToHotspot);
+            this.tabTest.Controls.Add(this.btnNextHotspot);
+            this.tabTest.Controls.Add(this.listTestHotspots);
+            this.tabTest.Location = new System.Drawing.Point(4, 22);
+            this.tabTest.Name = "tabTest";
+            this.tabTest.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTest.Size = new System.Drawing.Size(596, 163);
+            this.tabTest.TabIndex = 7;
+            this.tabTest.Text = "Test Profile";
+            this.tabTest.UseVisualStyleBackColor = true;
+            // 
+            // btnAddHotspotAtIndex
+            // 
+            this.btnAddHotspotAtIndex.Enabled = false;
+            this.btnAddHotspotAtIndex.Location = new System.Drawing.Point(490, 104);
+            this.btnAddHotspotAtIndex.Name = "btnAddHotspotAtIndex";
+            this.btnAddHotspotAtIndex.Size = new System.Drawing.Size(95, 23);
+            this.btnAddHotspotAtIndex.TabIndex = 25;
+            this.btnAddHotspotAtIndex.Text = "Add Hotspot";
+            this.btnAddHotspotAtIndex.UseVisualStyleBackColor = true;
+            this.btnAddHotspotAtIndex.Click += new System.EventHandler(this.btnAddHotspotAtIndex_Click);
+            // 
+            // btnReplaceHotspot
+            // 
+            this.btnReplaceHotspot.Location = new System.Drawing.Point(490, 76);
+            this.btnReplaceHotspot.Name = "btnReplaceHotspot";
+            this.btnReplaceHotspot.Size = new System.Drawing.Size(95, 23);
+            this.btnReplaceHotspot.TabIndex = 24;
+            this.btnReplaceHotspot.Text = "Replace";
+            this.btnReplaceHotspot.UseVisualStyleBackColor = true;
+            this.btnReplaceHotspot.Click += new System.EventHandler(this.btnReplaceHotspot_Click);
+            // 
+            // btnDeleteHotspot
+            // 
+            this.btnDeleteHotspot.Location = new System.Drawing.Point(490, 132);
+            this.btnDeleteHotspot.Name = "btnDeleteHotspot";
+            this.btnDeleteHotspot.Size = new System.Drawing.Size(95, 23);
+            this.btnDeleteHotspot.TabIndex = 23;
+            this.btnDeleteHotspot.Text = "Delete Hotspot";
+            this.btnDeleteHotspot.UseVisualStyleBackColor = true;
+            this.btnDeleteHotspot.Click += new System.EventHandler(this.btnDeleteHotspot_Click);
+            // 
+            // btnPrevHotspot
+            // 
+            this.btnPrevHotspot.Location = new System.Drawing.Point(490, 47);
+            this.btnPrevHotspot.Name = "btnPrevHotspot";
+            this.btnPrevHotspot.Size = new System.Drawing.Size(42, 23);
+            this.btnPrevHotspot.TabIndex = 22;
+            this.btnPrevHotspot.Text = "Prev";
+            this.btnPrevHotspot.UseVisualStyleBackColor = true;
+            this.btnPrevHotspot.Click += new System.EventHandler(this.btnPrevHotspot_Click);
+            // 
+            // btnGoToHotspot
+            // 
+            this.btnGoToHotspot.Location = new System.Drawing.Point(490, 21);
+            this.btnGoToHotspot.Name = "btnGoToHotspot";
+            this.btnGoToHotspot.Size = new System.Drawing.Size(95, 23);
+            this.btnGoToHotspot.TabIndex = 21;
+            this.btnGoToHotspot.Text = "Go To";
+            this.btnGoToHotspot.UseVisualStyleBackColor = true;
+            this.btnGoToHotspot.Click += new System.EventHandler(this.btnGoToHotspot_Click);
+            // 
+            // btnNextHotspot
+            // 
+            this.btnNextHotspot.Location = new System.Drawing.Point(543, 47);
+            this.btnNextHotspot.Name = "btnNextHotspot";
+            this.btnNextHotspot.Size = new System.Drawing.Size(42, 23);
+            this.btnNextHotspot.TabIndex = 20;
+            this.btnNextHotspot.Text = "Next";
+            this.btnNextHotspot.UseVisualStyleBackColor = true;
+            this.btnNextHotspot.Click += new System.EventHandler(this.btnNextHotspot_Click);
+            // 
+            // listTestHotspots
+            // 
+            this.listTestHotspots.FormattingEnabled = true;
+            this.listTestHotspots.Location = new System.Drawing.Point(12, 21);
+            this.listTestHotspots.Name = "listTestHotspots";
+            this.listTestHotspots.Size = new System.Drawing.Size(472, 121);
+            this.listTestHotspots.TabIndex = 17;
+            // 
+            // tabSettings
+            // 
+            this.tabSettings.Controls.Add(this.chkChatMessage);
+            this.tabSettings.Controls.Add(this.label1);
+            this.tabSettings.Controls.Add(this.numericUpDown1);
+            this.tabSettings.Controls.Add(this.label6);
+            this.tabSettings.Controls.Add(this.addIfMovedTextbox);
+            this.tabSettings.Controls.Add(this.recordingTimeTextbox);
+            this.tabSettings.Controls.Add(this.label5);
+            this.tabSettings.Controls.Add(this.label4);
+            this.tabSettings.Controls.Add(this.onTop);
+            this.tabSettings.Controls.Add(this.playSound);
+            this.tabSettings.Location = new System.Drawing.Point(4, 22);
+            this.tabSettings.Name = "tabSettings";
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
+            this.tabSettings.Size = new System.Drawing.Size(596, 163);
+            this.tabSettings.TabIndex = 8;
+            this.tabSettings.Text = "Settings";
+            this.tabSettings.UseVisualStyleBackColor = true;
+            // 
+            // chkChatMessage
+            // 
+            this.chkChatMessage.AutoSize = true;
+            this.chkChatMessage.Checked = true;
+            this.chkChatMessage.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkChatMessage.Location = new System.Drawing.Point(249, 73);
+            this.chkChatMessage.Name = "chkChatMessage";
+            this.chkChatMessage.Size = new System.Drawing.Size(99, 17);
+            this.chkChatMessage.TabIndex = 31;
+            this.chkChatMessage.Text = "Chat Messages";
+            this.chkChatMessage.UseVisualStyleBackColor = true;
+            this.chkChatMessage.CheckedChanged += new System.EventHandler(this.chkChatMessage_CheckedChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(266, 123);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(322, 13);
+            this.label1.TabIndex = 30;
+            this.label1.Text = "* Settings are also automatically saved when you close the window";
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(130, 61);
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(100, 20);
+            this.numericUpDown1.TabIndex = 29;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(9, 63);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(90, 13);
+            this.label6.TabIndex = 28;
+            this.label6.Text = "Blackspot Radius";
+            // 
+            // addIfMovedTextbox
+            // 
+            this.addIfMovedTextbox.Location = new System.Drawing.Point(130, 36);
+            this.addIfMovedTextbox.Name = "addIfMovedTextbox";
+            this.addIfMovedTextbox.Size = new System.Drawing.Size(100, 20);
+            this.addIfMovedTextbox.TabIndex = 27;
+            this.addIfMovedTextbox.Text = "30";
+            // 
+            // recordingTimeTextbox
+            // 
+            this.recordingTimeTextbox.Location = new System.Drawing.Point(130, 13);
+            this.recordingTimeTextbox.Name = "recordingTimeTextbox";
+            this.recordingTimeTextbox.Size = new System.Drawing.Size(100, 20);
+            this.recordingTimeTextbox.TabIndex = 26;
+            this.recordingTimeTextbox.Text = "2000";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(8, 39);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(69, 13);
+            this.label5.TabIndex = 25;
+            this.label5.Text = "Add if moved";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(8, 16);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(107, 13);
+            this.label4.TabIndex = 24;
+            this.label4.Text = "Recorder Sleep Time";
+            // 
+            // onTop
+            // 
+            this.onTop.AutoSize = true;
+            this.onTop.Checked = true;
+            this.onTop.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.onTop.Location = new System.Drawing.Point(105, 104);
+            this.onTop.Name = "onTop";
+            this.onTop.Size = new System.Drawing.Size(59, 17);
+            this.onTop.TabIndex = 13;
+            this.onTop.Text = "OnTop";
+            this.onTop.UseVisualStyleBackColor = true;
+            // 
+            // playSound
+            // 
+            this.playSound.AutoSize = true;
+            this.playSound.Checked = true;
+            this.playSound.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.playSound.Location = new System.Drawing.Point(19, 104);
+            this.playSound.Name = "playSound";
+            this.playSound.Size = new System.Drawing.Size(80, 17);
+            this.playSound.TabIndex = 12;
+            this.playSound.Text = "Play Sound";
+            this.playSound.UseVisualStyleBackColor = true;
+            // 
             // dlgSaveFile
             // 
             this.dlgSaveFile.DefaultExt = "xml";
@@ -842,19 +1069,6 @@
             this.txtLog.TabIndex = 20;
             this.txtLog.Text = "";
             // 
-            // chkChatMessage
-            // 
-            this.chkChatMessage.AutoSize = true;
-            this.chkChatMessage.Checked = true;
-            this.chkChatMessage.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkChatMessage.Location = new System.Drawing.Point(437, 138);
-            this.chkChatMessage.Name = "chkChatMessage";
-            this.chkChatMessage.Size = new System.Drawing.Size(99, 17);
-            this.chkChatMessage.TabIndex = 25;
-            this.chkChatMessage.Text = "Chat Messages";
-            this.chkChatMessage.UseVisualStyleBackColor = true;
-            this.chkChatMessage.CheckedChanged += new System.EventHandler(this.chkChatMessage_CheckedChanged);
-            // 
             // ZapMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -868,16 +1082,18 @@
             this.Text = "ZapRecorder2";
             this.tabControl1.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
-            this.tabMain.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.tabSettings.ResumeLayout(false);
-            this.tabSettings.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            this.tabProfileInfo.ResumeLayout(false);
+            this.tabProfileInfo.PerformLayout();
             this.tabHotspots.ResumeLayout(false);
             this.tabBlackspots.ResumeLayout(false);
             this.tabMailboxes.ResumeLayout(false);
             this.tabRepair.ResumeLayout(false);
+            this.tabTest.ResumeLayout(false);
+            this.tabSettings.ResumeLayout(false);
+            this.tabSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -885,9 +1101,7 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabSettings;
-        private System.Windows.Forms.CheckBox onTop;
-        private System.Windows.Forms.CheckBox playSound;
+        private System.Windows.Forms.TabPage tabProfileInfo;
         private System.Windows.Forms.CheckBox sellPurple;
         private System.Windows.Forms.CheckBox sellBlue;
         private System.Windows.Forms.CheckBox sellGreen;
@@ -898,20 +1112,11 @@
         private System.Windows.Forms.CheckBox mailGreen;
         private System.Windows.Forms.CheckBox mailWhite;
         private System.Windows.Forms.CheckBox mailGrey;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox addIfMovedTextbox;
-        private System.Windows.Forms.TextBox recordingTimeTextbox;
-        private System.Windows.Forms.TextBox minBagSlotTextbox;
-        private System.Windows.Forms.TextBox minDurabilityTextbox;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtMinFreeBagSlots;
+        private System.Windows.Forms.TextBox txtMinDurability;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label minimumDurabilityLabel;
-        private System.Windows.Forms.Button saveSettingsButton;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TabPage tabMain;
-        private System.Windows.Forms.Button btnSaveProfile;
         private System.Windows.Forms.Button btnAddBlackspot;
         private System.Windows.Forms.Button btnClearEverything;
         private System.Windows.Forms.Button btnAddMailbox;
@@ -927,7 +1132,6 @@
         private System.Windows.Forms.TabPage tabHotspots;
         private System.Windows.Forms.TabPage tabBlackspots;
         private System.Windows.Forms.TabPage tabMailboxes;
-        private System.Windows.Forms.Button btnLoadHotspots;
         private System.Windows.Forms.Button btnReverseHotspots;
         private System.Windows.Forms.Button btnClearSelectedHotspots;
         private System.Windows.Forms.Button btnClearHotspots;
@@ -952,7 +1156,39 @@
         private System.Windows.Forms.Button btnLocRefresh;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnAddHotspot;
+        private System.Windows.Forms.TabPage tabTest;
+        private System.Windows.Forms.ListBox listTestHotspots;
+        private System.Windows.Forms.Button btnReplaceHotspot;
+        private System.Windows.Forms.Button btnPrevHotspot;
+        private System.Windows.Forms.Button btnGoToHotspot;
+        private System.Windows.Forms.Button btnNextHotspot;
+        private System.Windows.Forms.ToolTip helpTooltip;
+        private System.Windows.Forms.Button btnLoadHotspots;
+        private System.Windows.Forms.TabPage tabSettings;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox addIfMovedTextbox;
+        private System.Windows.Forms.TextBox recordingTimeTextbox;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox onTop;
+        private System.Windows.Forms.CheckBox playSound;
+        private System.Windows.Forms.TextBox txtProfileAuthor;
+        private System.Windows.Forms.TextBox txtProfileName;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button btnSaveProfile;
+        private System.Windows.Forms.Button btnOpenProfile;
+        private System.Windows.Forms.Button btnAddHotspotAtIndex;
+        private System.Windows.Forms.Button btnDeleteHotspot;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtMinLevel;
+        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox chkChatMessage;
+        private System.Windows.Forms.TextBox txtMaxLevel;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox txtFactions;
+        private System.Windows.Forms.Label label11;
     }
 }
 
