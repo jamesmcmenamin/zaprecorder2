@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Styx;
 using Styx.Common;
@@ -16,15 +17,20 @@ using Styx.Helpers;
 using System.IO;
 using System.Media;
 
+// TODO - Blackspot notes
+
 namespace ZapRecorder2
 {
+
+    delegate void HotkeyHandler();
+
     public partial class ZapMainForm : Form
     {
-        public static List<string> hotspotsList, mailboxList, vendorsList, blackspotsList;
+        public static List<string> hotspotsList, mailboxList, repairList, blackspotsList;
         public Thread backgroundThread, recordingThread;
         public WoWPoint oldLocation = new WoWPoint(0, 0, 0);
         public bool isRecording = false;
-        public bool chatMessage = false;
+        public bool chatMessage = true;
 
         public ZapMainForm()
         {
@@ -32,7 +38,7 @@ namespace ZapRecorder2
 
             hotspotsList = new List<string>();
             mailboxList = new List<string>();
-            vendorsList = new List<string>();
+            repairList = new List<string>();
             blackspotsList = new List<string>();
 
             backgroundThread = new Thread(new ThreadStart(BackgroundPulse));
@@ -46,6 +52,15 @@ namespace ZapRecorder2
             txtLog.TextChanged += new EventHandler(txtLog_TextChanged);
             onTop.CheckedChanged += new EventHandler(onTop_CheckedChanged);
 
+            ((Control)this.tabTest).Enabled = false;
+
+
+            //Lua.Events.AttachEvent("MODIFIER_STATE_CHANGED", HandleModifierStateChanged);
+            //ZapLog("Registered RControl as hotkey with LUA");
+            //ShowWoWChatMessage("Registered HOTKEY for stuff");
+            //bool myBool = Hotkeys.RegisterHotkey("Log Waypoint", WriteSomething, Keys.LControlKey);
+
+            //ShowWoWChatMessage("Registered hotkeys for Zaprecorder2");
 
             /*
             Lua.Events.AttachEvent("MODIFIER_STATE_CHANGED", HandleModifierStateChanged);
@@ -54,38 +69,76 @@ namespace ZapRecorder2
             //Keys[] registeredHotkey = new Keys[1] { Keys.LControlKey };
 
             Action hotkeyDelegate = HandleZapHotkey;
-            Hotkeys.RegisterHotkey("Test Hotkey", hotkeyDelegate, Keys.LControlKey);
-            Log("Registered LControl as a hotkey with HB");
+            
              */
+            //ZapLog("Hotkey registration: " + myBool.ToString());
+            //ZapLog("Stop me here");
 
-        }
+            //Keys[] comboKey = new Keys[1];
+            //comboKey[0] = ;
 
-        private void WowChatMessage(string message)
-        {
-            if (chatMessage == true)
+            //Action ZapCallback = () => HandleZapHotkey();
+            //ZapCallback.Invoke(); // Successfully prints to log
+
+            try
             {
-                Lua.DoString("getglobal(\"ChatFrame1\"):AddMessage(\"|cff2dbbc4ZapRecorder2: |cffffffff " + message + "\",0, 0, 0, 0);");
+                Action ZapCallback = this.HandleZapHotkey;
+
+                Hotkeys.SetWindowHandle(StyxWoW.Memory.Process.MainWindowHandle);
+
+                bool TestResult = Hotkeys.RegisterHotkey("Test Hotkey", ZapCallback, Keys.LControlKey);
+
+                ZapLog("Registered LControl as a hotkey with HB");
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "Setting hotkeys");
             }
 
         }
+
         private void HandleZapHotkey()
         {
             ZapLog("LControl Pressed from Hotkey class!");
         }
 
-        /*private void HandleModifierStateChanged(object sender, LuaEventArgs args)
+        public void HandleModifierStateChanged(object sender, LuaEventArgs args)
         {
 
+            ZapLog("Modifier handler fired");
+            // Args[1] says that the key is being pressed and not released
             if (Convert.ToInt32(args.Args[1]) == 1)
             {
-                if(args.Args[0].ToString() == "RCTRL") {
+                if(args.Args[0].ToString() == "LCTRL") {
+                    //ToggleRecording();
+                    ZapLog("Got LCTRL");
+                }
+                else if (args.Args[0].ToString() == "LSHIFT")
                 {
-                    Log("RControl pressed from LUA attachment");
+                    //AddHotspot();
+                    ZapLog("Got LCTRL");
+                }
+                else
+                {
+                    ZapLog("Received unexecpted modifier: " + args.Args[0].ToString());
                 }
             }
         }
 
-        */
+        public void AddHotspot()
+        {
+            
+            hotspotsList.Add(getHotspot());
+            UpdateHotspotList();
+        }
+
+        public void AddHotspot(int index)
+        {
+            hotspotsList.Insert(index,getHotspot());
+            UpdateHotspotList();
+        }
+
+        
         public void onTop_CheckedChanged(object sender, EventArgs arg)
         {
             if (onTop.Checked == true)
@@ -110,6 +163,25 @@ namespace ZapRecorder2
         public void ZapLog(string msg)
         {
             txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] - " + msg + Environment.NewLine;
+        }
+
+        public void ZapException(Exception ex)
+        {
+            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] [ERROR] - " + ex.Message + Environment.NewLine;
+        }
+
+        public void ZapException(Exception ex, string exLocation)
+        {
+            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] [ERROR in " + exLocation + "] - " + ex.Message + Environment.NewLine;
+        }
+
+        public void ShowWoWChatMessage(string message)
+        {
+            //if (chatMessage == true)
+            //{
+                Lua.DoString("getglobal(\"ChatFrame1\"):AddMessage(\"|cff2dbbc4ZapRecorder2: |cffffffff " + message + "\",0, 0, 0, 0);");
+            //}
+
         }
 
         private void txtLog_TextChanged(object sender, EventArgs e)
@@ -291,13 +363,13 @@ namespace ZapRecorder2
 
             #region MinimumDurability
 
-            ZapRecorder2.Properties.Settings.Default.minimumDurability = minDurabilityTextbox.Text;
+            ZapRecorder2.Properties.Settings.Default.minimumDurability = txtMinDurability.Text;
 
             #endregion
 
             #region MinimumFreeBagSlots
 
-            ZapRecorder2.Properties.Settings.Default.minimumFreeBagSlots = minBagSlotTextbox.Text;
+            ZapRecorder2.Properties.Settings.Default.minimumFreeBagSlots = txtMinFreeBagSlots.Text;
 
             #endregion
 
@@ -481,13 +553,13 @@ namespace ZapRecorder2
 
             #region MinimumDurability
 
-            minDurabilityTextbox.Text = ZapRecorder2.Properties.Settings.Default.minimumDurability;
+            txtMinDurability.Text = ZapRecorder2.Properties.Settings.Default.minimumDurability;
 
             #endregion
 
             #region MinimumFreeBagSlots
 
-            minBagSlotTextbox.Text = ZapRecorder2.Properties.Settings.Default.minimumFreeBagSlots;
+            txtMinFreeBagSlots.Text = ZapRecorder2.Properties.Settings.Default.minimumFreeBagSlots;
 
             #endregion
 
@@ -528,7 +600,7 @@ namespace ZapRecorder2
             this.Hide();
         }
 
-        //Thread to update the labels and shizzle in the background
+        // So far just updates labels.. Necessary?
         public void BackgroundPulse()
         {
             ZapLog("Background thread started");
@@ -537,11 +609,19 @@ namespace ZapRecorder2
             {
                 Thread.Sleep(50);
 
-                lblBlackspots.Text = "Blackspots: " + blackspotsList.Count().ToString();
-                lblVendors.Text = "Vendors: " + vendorsList.Count().ToString();
-                lblHotspots.Text = "Hotspots: " + hotspotsList.Count().ToString();
-                lblMailboxes.Text = "Mailboxes: " + mailboxList.Count().ToString();
-                //lblLocation.Text = ObjectManager.Me.Location.X + "X, " + ObjectManager.Me.Location.Y + "Y";
+                try
+                {
+                    lblBlackspots.Text = "Blackspots: " + blackspotsList.Count().ToString();
+                    lblVendors.Text = "Vendors: " + repairList.Count().ToString();
+                    lblHotspots.Text = "Hotspots: " + hotspotsList.Count().ToString();
+                    lblMailboxes.Text = "Mailboxes: " + mailboxList.Count().ToString();
+                    // Do not attempt to update location. Frequent calls WILL crash HB
+                }
+                catch (Exception ex)
+                {
+                    // REMOVEME
+                    ZapException(ex, "BackgroundPulse");
+                }
             }
         }
 
@@ -552,7 +632,7 @@ namespace ZapRecorder2
 
         private void clearBlackspotsButton_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Clear all blackspots?", this.Text) == true)
+            if (MessageBoxHelper("Clear all blackspots?", this.Text) == true)
             {
                 blackspotsList.Clear();
             }
@@ -560,7 +640,7 @@ namespace ZapRecorder2
 
         private void clearHotspotsButton_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Clear all hotspots?", this.Text) == true)
+            if (MessageBoxHelper("Clear all hotspots?", this.Text) == true)
             {
                 hotspotsList.Clear();
             }
@@ -573,7 +653,7 @@ namespace ZapRecorder2
 
         private void clearMailboxesButton_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Clear all mailboxes?", this.Text) == true)
+            if (MessageBoxHelper("Clear all mailboxes?", this.Text) == true)
             {
                 mailboxList.Clear();
             }
@@ -586,7 +666,7 @@ namespace ZapRecorder2
 
         private void btnClearHotspots_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to clear all hotspots?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to clear all hotspots?", this.Text) == true)
             {
                 hotspotsList.Clear();
                 UpdateHotspotList();
@@ -595,48 +675,85 @@ namespace ZapRecorder2
 
         public void RecordingPulse()
         {
-            while (isRecording)
-            {
-                if (notTheSame())
+            try {
+                while (isRecording)
                 {
-                    /*if (playSound.Checked == true)
+                    if (HasMovedNeedsHotspot())
                     {
-                        PlaySound("bloop.wav");
+                        /*if (playSound.Checked == true)
+                        {
+                            PlaySound("bloop.wav");
+                        }
+                        */
+
+                        ZapLog("Adding: " + getHotspot());
+                    
+                    
+                        oldLocation = new WoWPoint(ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
+                    
+                        AddHotspot();
+                        hotspotsList.Add(getHotspot());
+
+                        // Delay according to recording time
+                        Thread.Sleep(Convert.ToInt32(recordingTimeTextbox.Text));
                     }
-                    */
-                    ZapLog("Adding: " + getHotspot());
-                    hotspotsList.Add(getHotspot());
-
-                    oldLocation = new WoWPoint(ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
-                    //
-                    //Change recording sleep time!
-                    Thread.Sleep(Convert.ToInt32(recordingTimeTextbox.Text));
-
-                    UpdateHotspotList();
+                    else
+                    {
+                        // Hasn't moved enough for hotspot. Check again in 100ms
+                        Thread.Sleep(100);
+                    }
                 }
-                else
-                {
-                    string temp = distanceToMove().ToString().Split(',')[0] + " yards";
-                    Thread.Sleep(100);
-                }
+            } catch(Exception ex) {
+                ZapException(ex,"RecordingPulse");
             }
         }
 
-        public double distanceToMove()
+        public bool HasMovedNeedsHotspot()
         {
-            return Convert.ToInt32(addIfMovedTextbox.Text) - ObjectManager.Me.WorldLocation.Distance(oldLocation);
+            try
+            {
+                return (ObjectManager.Me.Location.Distance(oldLocation) > Convert.ToInt32(addIfMovedTextbox.Text));
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "HasMovedNeedsHotspot");
+                return false;
+            }
         }
 
-        public bool notTheSame()
-        {
-            return (ObjectManager.Me.Location.Distance(oldLocation) > Convert.ToInt32(addIfMovedTextbox.Text));
-        }
-
-        public bool MessageBoxHelp(string text, string title)
+        public bool MessageBoxHelper(string text, string title)
         {
             DialogResult dialog = MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (dialog == DialogResult.Yes)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool MessageBoxHelper(string text, string title,MessageBoxButtons boxButtons)
+        {
+            DialogResult dialog = MessageBox.Show(text, title, boxButtons, MessageBoxIcon.Question);
+
+            if ((dialog == DialogResult.Yes) || (dialog == DialogResult.OK))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool MessageBoxHelper(string text, string title, MessageBoxButtons boxButtons, MessageBoxIcon boxIcon)
+        {
+            DialogResult dialog = MessageBox.Show(text, title, boxButtons, boxIcon);
+
+            if ((dialog == DialogResult.Yes) || (dialog == DialogResult.OK))
             {
                 return true;
             }
@@ -653,14 +770,20 @@ namespace ZapRecorder2
 
         private void btnRecording_Click(object sender, EventArgs e)
         {
+            ToggleRecording();
+            
+        }
 
+        public void ToggleRecording()
+        {
             if (isRecording)
             {
                 // Stop the recording
                 isRecording = false;
                 btnRecording.Text = "Start Recording";
                 btnRecording.ForeColor = Color.Black;
-                WowChatMessage("Recording stopped!");
+                ShowWoWChatMessage("Recording stopped!");
+                ZapLog("Recording stopped!");
             }
             else
             {
@@ -675,8 +798,9 @@ namespace ZapRecorder2
                     btnRecording.Text = "Stop Recording";
                     btnRecording.ForeColor = Color.Red;
                     //recordLabel.Text = "Recording: Yes";
-                    
-                    WowChatMessage("Recording started!");
+
+                    ShowWoWChatMessage("Recording started!");
+                    ZapLog("Recording started!");
                 }
                 catch
                 {
@@ -690,179 +814,185 @@ namespace ZapRecorder2
             if(hotspotsList.Count() >= 1)
             {
 
-                dlgSaveFile.InitialDirectory = Utilities.AssemblyDirectory;
-
-                if (dlgSaveFile.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    ZapLog("Received a save to location of: " + dlgSaveFile.FileName);
+                    dlgSaveFile.InitialDirectory = Utilities.AssemblyDirectory;
 
-                    string path = dlgSaveFile.FileName;
-
-                    StreamWriter writer = new StreamWriter(path);
-                    ZapLog("Writing profile: " + path);
-
-                    //BEGINNING OF THE PROFILE WRITING
-                    writer.WriteLine("<HBProfile>");
-                    writer.WriteLine("<Name>" + ObjectManager.Me.ZoneText + "</Name>");
-                    writer.WriteLine("<MinDurability>" + minDurabilityTextbox.Text + "</MinDurability>");
-                    writer.WriteLine("<MinFreeBagSlots>" + minBagSlotTextbox.Text + "</MinFreeBagSlots>");
-                    writer.WriteLine("");
-
-                    writer.WriteLine("<MinLevel>1</MinLevel>");
-                    writer.WriteLine("<MaxLevel>86</MaxLevel>");
-                    writer.WriteLine("<Factions>99999</Factions>");
-                    writer.WriteLine("");
-
-
-                    #region Mail
-                    if (mailGrey.Checked == true)
+                    if (dlgSaveFile.ShowDialog() == DialogResult.OK)
                     {
-                        writer.WriteLine("<MailGrey>true</MailGrey>");
+                        ZapLog("Received a save to location of: " + dlgSaveFile.FileName);
+
+                        string path = dlgSaveFile.FileName;
+
+                        StreamWriter writer = new StreamWriter(path);
+                        ZapLog("Writing profile: " + path);
+
+                        //BEGINNING OF THE PROFILE WRITING
+                        writer.WriteLine("<HBProfile>");
+                        writer.WriteLine("<Name>" + ObjectManager.Me.ZoneText + "</Name>");
+                        writer.WriteLine("<MinDurability>" + txtMinDurability.Text + "</MinDurability>");
+                        writer.WriteLine("<MinFreeBagSlots>" + txtMinFreeBagSlots.Text + "</MinFreeBagSlots>");
+                        writer.WriteLine("");
+
+                        writer.WriteLine("<MinLevel>1</MinLevel>");
+                        writer.WriteLine("<MaxLevel>86</MaxLevel>");
+                        writer.WriteLine("<Factions>99999</Factions>");
+                        writer.WriteLine("");
+
+
+                        #region Mail
+                        if (mailGrey.Checked == true)
+                        {
+                            writer.WriteLine("<MailGrey>true</MailGrey>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<MailGrey>false</MailGrey>");
+                        }
+
+                        if (mailWhite.Checked == true)
+                        {
+                            writer.WriteLine("<MailWhite>true</MailWhite>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<MailWhite>false</MailWhite>");
+                        }
+
+                        if (mailGreen.Checked == true)
+                        {
+                            writer.WriteLine("<MailGreen>true</MailGreen>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<MailGreen>false</MailGreen>");
+                        }
+
+                        if (mailBlue.Checked == true)
+                        {
+                            writer.WriteLine("<MailBlue>true</MailBlue>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<MailBlue>false</MailBlue>");
+                        }
+
+                        if (mailPurple.Checked == true)
+                        {
+                            writer.WriteLine("<MailPurple>true</MailPurple>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<MailPurple>false</MailPurple>");
+                        }
+                        #endregion
+
+                        writer.WriteLine("");
+
+                        #region SellOptions
+
+                        if (sellGrey.Checked == true)
+                        {
+                            writer.WriteLine("<SellGrey>true</SellGrey>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<SellGrey>false</SellGrey>");
+                        }
+
+                        if (sellWhite.Checked == true)
+                        {
+                            writer.WriteLine("<SellWhite>true</SellWhite>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<SellWhite>false</SellWhite>");
+                        }
+
+                        if (sellGreen.Checked == true)
+                        {
+                            writer.WriteLine("<SellGreen>true</SellGreen>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<SellGreen>false</SellGreen>");
+                        }
+
+                        if (sellBlue.Checked == true)
+                        {
+                            writer.WriteLine("<SellBlue>true</SellBlue>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<SellBlue>false</SellBlue>");
+                        }
+
+                        if (sellPurple.Checked == true)
+                        {
+                            writer.WriteLine("<SellPurple>true</SellPurple>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<SellPurple>false</SellPurple>");
+                        }
+
+                        #endregion
+
+                        writer.WriteLine("");
+
+                        #region Misc
+
+                        writer.WriteLine("<Vendors>");
+
+                        foreach (string vend in repairList)
+                            writer.WriteLine(vend);
+
+                        writer.WriteLine("</Vendors>");
+                        writer.WriteLine("");
+
+                        writer.WriteLine("<Mailboxes>");
+
+                        foreach (string mail in mailboxList)
+                            writer.WriteLine(mail);
+
+                        writer.WriteLine("</Mailboxes>");
+                        writer.WriteLine("");
+
+
+                        writer.WriteLine("<Blackspots>");
+
+                        foreach (string black in blackspotsList)
+                            writer.WriteLine(black);
+
+                        writer.WriteLine("</Blackspots>");
+                        writer.WriteLine("");
+
+                        writer.WriteLine("<Hotspots>");
+
+                        //HOTSPOTS
+                        foreach (string loc in hotspotsList)
+                            writer.WriteLine(loc);
+
+
+                        #endregion
+
+                        writer.WriteLine("</Hotspots>");
+                        writer.WriteLine("</HBProfile>");
+                        writer.Close();
+
+
+                        ZapLog("Profile writing completed!");
                     }
                     else
                     {
-                        writer.WriteLine("<MailGrey>false</MailGrey>");
+                        // User cancelled Save Dialog
                     }
 
-                    if (mailWhite.Checked == true)
-                    {
-                        writer.WriteLine("<MailWhite>true</MailWhite>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<MailWhite>false</MailWhite>");
-                    }
-
-                    if (mailGreen.Checked == true)
-                    {
-                        writer.WriteLine("<MailGreen>true</MailGreen>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<MailGreen>false</MailGreen>");
-                    }
-
-                    if (mailBlue.Checked == true)
-                    {
-                        writer.WriteLine("<MailBlue>true</MailBlue>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<MailBlue>false</MailBlue>");
-                    }
-
-                    if (mailPurple.Checked == true)
-                    {
-                        writer.WriteLine("<MailPurple>true</MailPurple>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<MailPurple>false</MailPurple>");
-                    }
-                    #endregion
-
-                    writer.WriteLine("");
-
-                    #region SellOptions
-
-                    if (sellGrey.Checked == true)
-                    {
-                        writer.WriteLine("<SellGrey>true</SellGrey>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<SellGrey>false</SellGrey>");
-                    }
-
-                    if (sellWhite.Checked == true)
-                    {
-                        writer.WriteLine("<SellWhite>true</SellWhite>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<SellWhite>false</SellWhite>");
-                    }
-
-                    if (sellGreen.Checked == true)
-                    {
-                        writer.WriteLine("<SellGreen>true</SellGreen>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<SellGreen>false</SellGreen>");
-                    }
-
-                    if (sellBlue.Checked == true)
-                    {
-                        writer.WriteLine("<SellBlue>true</SellBlue>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<SellBlue>false</SellBlue>");
-                    }
-
-                    if (sellPurple.Checked == true)
-                    {
-                        writer.WriteLine("<SellPurple>true</SellPurple>");
-                    }
-                    else
-                    {
-                        writer.WriteLine("<SellPurple>false</SellPurple>");
-                    }
-
-                    #endregion
-
-                    writer.WriteLine("");
-
-                    #region Misc
-
-                    writer.WriteLine("<Vendors>");
-
-                    foreach (string vend in vendorsList)
-                        writer.WriteLine(vend);
-
-                    writer.WriteLine("</Vendors>");
-                    writer.WriteLine("");
-
-                    writer.WriteLine("<Mailboxes>");
-
-                    foreach (string mail in mailboxList)
-                        writer.WriteLine(mail);
-
-                    writer.WriteLine("</Mailboxes>");
-                    writer.WriteLine("");
-
-
-                    writer.WriteLine("<Blackspots>");
-
-                    foreach (string black in blackspotsList)
-                        writer.WriteLine(black);
-
-                    writer.WriteLine("</Blackspots>");
-                    writer.WriteLine("");
-
-                    writer.WriteLine("<Hotspots>");
-
-                    //HOTSPOTS
-                    foreach (string loc in hotspotsList)
-                        writer.WriteLine(loc);
-
-
-                    #endregion
-
-                    writer.WriteLine("</Hotspots>");
-                    writer.WriteLine("</HBProfile>");
-                    writer.Close();
-
-
-                    ZapLog("Profile writing completed!");
                 }
-                else
+                catch (Exception ex)
                 {
-                    // User cancelled Save Dialog
+                    ZapException(ex, "SaveProfile");
                 }
-
-
             }
             else
             {
@@ -870,32 +1000,39 @@ namespace ZapRecorder2
             }
         }
 
-        private void saveSettingsButton_Click(object sender, EventArgs e)
+        private void AddBlackspot()
         {
-            SaveSettings();
+            try
+            {
+                string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
+                blackspotsList.Add(tempBlackspot);
+                UpdateBlackspotList();
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "AddBlackspot");
+            }
         }
 
         private void btnAddBlackspot_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
+            if (MessageBoxHelper("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
             {
-                string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
-                ZapLog("Added: " + tempBlackspot);
-                blackspotsList.Add(tempBlackspot);
-                UpdateBlackspotList();
-                WowChatMessage("Blackspot added at your location");
+                AddBlackspot();
+                ZapLog("Added blackspot");
+                ShowWoWChatMessage("Blackspot added at your location");
             }
         }
 
         private void btnAddMailbox_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you standing next to a mailbox?", this.Text) == true)
+            if (MessageBoxHelper("Are you standing next to a mailbox?", this.Text) == true)
             {
                 string tempMailbox = "<Mailbox" + getHotspot().Replace("<Hotspot", "");
                 ZapLog("Adding: " + tempMailbox);
                 mailboxList.Add(tempMailbox);
                 UpdateMailboxList();
-                WowChatMessage("Mailbox added at your location");
+                ShowWoWChatMessage("Mailbox added at your location");
             }
         }
 
@@ -910,12 +1047,12 @@ namespace ZapRecorder2
                         ObjectManager.Me.CurrentTarget.Name, ObjectManager.Me.CurrentTarget.Entry.ToString(), "Repair", ObjectManager.Me.CurrentTarget.X.ToString(), ObjectManager.Me.CurrentTarget.Y.ToString(),
                         ObjectManager.Me.CurrentTarget.Z.ToString());
 
-                    if (MessageBoxHelp("Do you want to add this repair NPC?\n\n" + tempVendor, this.Text) == true)
+                    if (MessageBoxHelper("Do you want to add this repair NPC?\n\n" + tempVendor, this.Text) == true)
                     {
                         ZapLog("Adding: " + tempVendor);
-                        vendorsList.Add(tempVendor);
+                        repairList.Add(tempVendor);
                         UpdateRepairList();
-                        WowChatMessage("Repair vendor added at your location");
+                        ShowWoWChatMessage("Repair vendor added at your location");
                     }
                 }
                 else
@@ -937,12 +1074,12 @@ namespace ZapRecorder2
 
         private void btnClearEverything_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to clear everything from this profile?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to clear everything from this profile?", this.Text) == true)
             {
                 hotspotsList.Clear();
                 blackspotsList.Clear();
                 mailboxList.Clear();
-                vendorsList.Clear();
+                repairList.Clear();
 
                 ZapLog("Cleared everything from the current profile");
             }
@@ -950,7 +1087,7 @@ namespace ZapRecorder2
 
         private void btnClearAllMailboxes_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Clear all mailboxes?", this.Text) == true)
+            if (MessageBoxHelper("Clear all mailboxes?", this.Text) == true)
             {
                 mailboxList.Clear();
                 UpdateMailboxList();
@@ -959,7 +1096,7 @@ namespace ZapRecorder2
 
         private void btnClearBlackspots_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to clear all blackspots?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to clear all blackspots?", this.Text) == true)
             {
                 blackspotsList.Clear();
             }
@@ -969,9 +1106,9 @@ namespace ZapRecorder2
 
         private void btnClearAllRepair_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Clear all vendors?", this.Text) == true)
+            if (MessageBoxHelper("Clear all vendors?", this.Text) == true)
             {
-                vendorsList.Clear();
+                repairList.Clear();
             }
 
             UpdateRepairList();
@@ -979,41 +1116,71 @@ namespace ZapRecorder2
 
         public void UpdateHotspotList()
         {
-            listHotspots.Items.Clear();
-
-            foreach (string q in hotspotsList)
+            try
             {
-                listHotspots.Items.Add(q);
+                listHotspots.Items.Clear();
+                listTestHotspots.Items.Clear();
+
+                foreach (string q in hotspotsList)
+                {
+                    listHotspots.Items.Add(q);
+                    listTestHotspots.Items.Add(q);
+                }
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "UpdateHotspotList");
             }
         }
 
         public void UpdateBlackspotList()
         {
-            listBlackspots.Items.Clear();
+            try {
+                listBlackspots.Items.Clear();
 
-            foreach (string q in blackspotsList)
+                foreach (string q in blackspotsList)
+                {
+                    listBlackspots.Items.Add(q);
+                }
+            }
+            catch (Exception ex)
             {
-                listBlackspots.Items.Add(q);
+                ZapException(ex, "UpdateBlackspotList");
             }
         }
 
         public void UpdateRepairList()
         {
-            listRepair.Items.Clear();
-
-            foreach (string q in vendorsList)
+            try
             {
-                listRepair.Items.Add(q);
+
+                listRepair.Items.Clear();
+
+                foreach (string q in repairList)
+                {
+                    listRepair.Items.Add(q);
+                }
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "UpdateRepairList");
             }
         }
 
         public void UpdateMailboxList()
         {
-            listMailboxes.Items.Clear();
-
-            foreach (string q in mailboxList)
+            try
             {
-                listMailboxes.Items.Add(q);
+                listMailboxes.Items.Clear();
+
+                foreach (string q in mailboxList)
+                {
+                    listMailboxes.Items.Add(q);
+                }
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "UpdateMailboxList");
             }
         }
 
@@ -1021,7 +1188,7 @@ namespace ZapRecorder2
         {
             if (listHotspots.SelectedItems.Count > 0)
             {
-                if (MessageBoxHelp("Remove selected hotspot?\n\n" + listHotspots.SelectedItem.ToString(), this.Text) == true)
+                if (MessageBoxHelper("Remove selected hotspot?\n\n" + listHotspots.SelectedItem.ToString(), this.Text) == true)
                 {
                     ZapMainForm.hotspotsList.Remove(listHotspots.SelectedItem.ToString());
                     UpdateHotspotList();
@@ -1033,7 +1200,7 @@ namespace ZapRecorder2
         {
             if (listBlackspots.SelectedItems.Count > 0)
             {
-                if (MessageBoxHelp("Are you sure you wish to remove the selected blackspot?\n\n" + listBlackspots.SelectedItem.ToString(), this.Text) == true)
+                if (MessageBoxHelper("Are you sure you wish to remove the selected blackspot?\n\n" + listBlackspots.SelectedItem.ToString(), this.Text) == true)
                 {
                     blackspotsList.Remove(listBlackspots.SelectedItem.ToString());
                     UpdateBlackspotList();
@@ -1045,9 +1212,9 @@ namespace ZapRecorder2
         {
             if (listRepair.SelectedItems.Count > 0)
             {
-                if (MessageBoxHelp("Remove selected vendor?\n\n" + listRepair.SelectedItem.ToString(), this.Text) == true)
+                if (MessageBoxHelper("Remove selected vendor?\n\n" + listRepair.SelectedItem.ToString(), this.Text) == true)
                 {
-                    vendorsList.Remove(listRepair.SelectedItem.ToString());
+                    repairList.Remove(listRepair.SelectedItem.ToString());
                     UpdateRepairList();
                 }
             }
@@ -1057,7 +1224,7 @@ namespace ZapRecorder2
         {
             if (listMailboxes.SelectedItems.Count > 0)
             {
-                if (MessageBoxHelp("Remove selected mailbox?\n\n" + listMailboxes.SelectedItem.ToString(), this.Text) == true)
+                if (MessageBoxHelper("Remove selected mailbox?\n\n" + listMailboxes.SelectedItem.ToString(), this.Text) == true)
                 {
                     mailboxList.Remove(listMailboxes.SelectedItem.ToString());
                     UpdateMailboxList();
@@ -1067,25 +1234,25 @@ namespace ZapRecorder2
 
         private void btnAddBlackspot2_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
+            if (MessageBoxHelper("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
             {
                 string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
                 ZapLog("Added: " + tempBlackspot);
                 blackspotsList.Add(tempBlackspot);
                 UpdateBlackspotList();
-                WowChatMessage("Blackspot added at your location");
+                ShowWoWChatMessage("Blackspot added at your location");
             }
         }
 
         private void btnAddMailbox2_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you standing next to a mailbox?", this.Text) == true)
+            if (MessageBoxHelper("Are you standing next to a mailbox?", this.Text) == true)
             {
                 string tempMailbox = "<Mailbox" + getHotspot().Replace("<Hotspot", "");
                 ZapLog("Adding: " + tempMailbox);
                 mailboxList.Add(tempMailbox);
                 UpdateMailboxList();
-                WowChatMessage("Mailbox added at your location");
+                ShowWoWChatMessage("Mailbox added at your location");
             }
         }
 
@@ -1101,12 +1268,12 @@ namespace ZapRecorder2
                         ObjectManager.Me.CurrentTarget.Name, ObjectManager.Me.CurrentTarget.Entry.ToString(), "Repair", ObjectManager.Me.CurrentTarget.X.ToString(), ObjectManager.Me.CurrentTarget.Y.ToString(),
                         ObjectManager.Me.CurrentTarget.Z.ToString());
 
-                    if (MessageBoxHelp("Do you want to add this NPC as a vendor?\n\n" + tempVendor, this.Text) == true)
+                    if (MessageBoxHelper("Do you want to add this NPC as a vendor?\n\n" + tempVendor, this.Text) == true)
                     {
                         ZapLog("Adding: " + tempVendor);
-                        vendorsList.Add(tempVendor);
+                        repairList.Add(tempVendor);
                         UpdateRepairList();
-                        WowChatMessage("Repair vendor added at your location");
+                        ShowWoWChatMessage("Repair vendor added at your location");
                     }
                 }
                 else
@@ -1123,7 +1290,7 @@ namespace ZapRecorder2
 
         private void btnReverseHotspots_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to reverse all hotspots?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to reverse all hotspots?", this.Text) == true)
             {
                 hotspotsList.Reverse();
                 UpdateHotspotList();
@@ -1133,7 +1300,7 @@ namespace ZapRecorder2
 
         private void btnLoadHotspots_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to load hotspots from an existing profile? \n\n Please note that this will DELETE all existing hotspots!", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to load hotspots from an existing profile? \n\n Please note that this will DELETE all existing hotspots!", this.Text) == true)
             {
                 OpenFileDialog dialog = new OpenFileDialog();
                 DialogResult results = new DialogResult();
@@ -1167,7 +1334,7 @@ namespace ZapRecorder2
 
         private void btnLoadBlackspots_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to load blackspots from an existing profile?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to load blackspots from an existing profile?", this.Text) == true)
             {
                 OpenFileDialog dialog = new OpenFileDialog();
                 DialogResult results = new DialogResult();
@@ -1198,7 +1365,7 @@ namespace ZapRecorder2
 
         private void btnLoadRepair_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to load repair vendors from an existing profile?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to load repair vendors from an existing profile?", this.Text) == true)
             {
                 OpenFileDialog dialog = new OpenFileDialog();
                 DialogResult results = new DialogResult();
@@ -1214,9 +1381,9 @@ namespace ZapRecorder2
                     {
                         if (tempLine.Contains("<Vendor "))
                         {
-                            if (!vendorsList.Contains(tempLine))
+                            if (!repairList.Contains(tempLine))
                             {
-                                vendorsList.Add(tempLine);
+                                repairList.Add(tempLine);
                             }
                         }
                     }
@@ -1229,7 +1396,7 @@ namespace ZapRecorder2
 
         private void btnLoadMailboxes_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelp("Are you sure you wish to load mailboxes from an existing profile?", this.Text) == true)
+            if (MessageBoxHelper("Are you sure you wish to load mailboxes from an existing profile?", this.Text) == true)
             {
                 OpenFileDialog dialog = new OpenFileDialog();
                 DialogResult results = new DialogResult();
@@ -1265,9 +1432,8 @@ namespace ZapRecorder2
 
         private void btnAddHotspot_Click(object sender, EventArgs e)
         {
-            ZapLog("Manually Adding: " + getHotspot());
-            hotspotsList.Add(getHotspot());
-            UpdateHotspotList();
+            AddHotspot();
+            ZapLog("Added " + getHotspot());
 
         }
 
@@ -1275,7 +1441,7 @@ namespace ZapRecorder2
         {
             if (chkChatMessage.Checked == true)
             {
-                chatMessage = true;
+                //WoWHelper
                 Logging.Write("Turning on chat messages.");
             }
             else
@@ -1284,6 +1450,386 @@ namespace ZapRecorder2
                 ZapLog("Turning off chat messages.");
             }
         }
+
+        private void btnOpenProfile_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Loading a profile will replace all current hotspots, settings, etc..\n\n", "Confirm Open Profile",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning) == true)
+            {
+                OpenFileDialog dialog = new OpenFileDialog();
+                DialogResult results = new DialogResult();
+
+                results = dialog.ShowDialog();
+
+                if (results == DialogResult.OK)
+                {
+                    hotspotsList.Clear();
+                    UpdateHotspotList(); 
+                    
+                    blackspotsList.Clear();
+                    UpdateBlackspotList();
+
+                    mailboxList.Clear();
+                    UpdateMailboxList();
+
+                    repairList.Clear();
+                    UpdateRepairList();
+
+                    ZapLog("Loading profile " + dialog.FileName);
+
+                    
+
+                    string tempLine;
+
+                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
+                    while ((tempLine = file.ReadLine()) != null)
+                    {
+                        if (tempLine.Contains("<Hotspot "))
+                        {
+                            if (!hotspotsList.Contains(tempLine))
+                            {
+                                hotspotsList.Add(tempLine.Trim());
+                            }
+                        }
+                        else if (tempLine.Contains("<Blackspot "))
+                        {
+                            if (!blackspotsList.Contains(tempLine))
+                            {
+                                blackspotsList.Add(tempLine.Trim());
+                            }
+                        }
+                        else if (tempLine.Contains("<Mailbox "))
+                        {
+
+                            if (!mailboxList.Contains(tempLine))
+                            {
+                                mailboxList.Add(tempLine.Trim());
+                            }
+                        }
+                        else if (tempLine.Contains("<Vendor ") && tempLine.Contains("Repair"))
+                        {
+
+                            if (!repairList.Contains(tempLine))
+                            {
+                                repairList.Add(tempLine.Trim());
+                            }
+                        }
+                        else if (tempLine.Contains("<Name"))
+                        {
+                            txtProfileName.Text = getProfileDataString(tempLine, "Name");
+                        }
+                        else if (tempLine.Contains("<MailGrey"))
+                        {
+                            mailGrey.Checked = getProfileDataBool(tempLine, "MailGrey");
+                        }
+                        else if (tempLine.Contains("<MailWhite"))
+                        {
+                            mailWhite.Checked = getProfileDataBool(tempLine, "MailWhite");
+                        }
+                        else if (tempLine.Contains("<MailGreen"))
+                        {
+                            mailGreen.Checked = getProfileDataBool(tempLine, "MailGreen");
+                        }
+                        else if (tempLine.Contains("<MailBlue"))
+                        {
+                            mailBlue.Checked = getProfileDataBool(tempLine, "MailBlue");
+                        }
+                        else if (tempLine.Contains("<MailPurple"))
+                        {
+                            mailPurple.Checked = getProfileDataBool(tempLine, "MailPurple");
+                        }
+                        else if (tempLine.Contains("<SellGrey"))
+                        {
+                            sellGrey.Checked = getProfileDataBool(tempLine, "SellGrey");
+                        }
+                        else if (tempLine.Contains("<SellWhite"))
+                        {
+                            sellWhite.Checked = getProfileDataBool(tempLine, "SellWhite");
+                        }
+                        else if (tempLine.Contains("<SellGreen"))
+                        {
+                            sellGreen.Checked = getProfileDataBool(tempLine, "SellGreen");
+                        }
+                        else if (tempLine.Contains("<SellBlue"))
+                        {
+                            sellBlue.Checked = getProfileDataBool(tempLine, "SellBlue");
+                        }
+                        else if (tempLine.Contains("<SellPurple"))
+                        {
+                            sellPurple.Checked = getProfileDataBool(tempLine, "SellPurple");
+                        }
+                        else if (tempLine.Contains("<MinDurability"))
+                        {
+                            txtMinDurability.Text = getProfileDataString(tempLine, "MinDurability");
+                        }
+                        else if (tempLine.Contains("<MinFreeBagSlots"))
+                        {
+                            txtMinFreeBagSlots.Text = getProfileDataString(tempLine, "MinFreeBagSlots");
+                        }
+                        else if (tempLine.Contains("<MinLevel"))
+                        {
+                            txtMinLevel.Text = getProfileDataString(tempLine, "MinLevel");
+                        }
+                        else if (tempLine.Contains("<MaxLevel"))
+                        {
+                            txtMaxLevel.Text = getProfileDataString(tempLine, "MaxLevel");
+                        }
+                        else if (tempLine.Contains("<Factions"))
+                        {
+                            txtFactions.Text = getProfileDataString(tempLine, "Factions");
+                        }
+                        
+
+                    }
+
+                    file.Close();
+
+                    //MinDurability
+                    //MinFreeBagSlots
+                    //MinLevel
+                    //MaxLevel
+                    //Factions
+                    
+                    UpdateHotspotList();
+                    UpdateBlackspotList();
+                    UpdateMailboxList();
+                    UpdateRepairList();
+                    ZapLog("Profile load complete!");
+                }
+            }
+        }
+
+        private string getProfileDataString(string profileLine, string nodeName)
+        {
+            return profileLine.Replace("<" + nodeName + ">", "").Replace("</" + nodeName + ">", "").Trim();
+        }
+
+        private bool getProfileDataBool(string profileLine, string nodeName)
+        {
+            return profileLine.Replace("<" + nodeName + ">", "").Replace("</" + nodeName + ">", "").Trim().ToBoolean();
+        }
+
+        /* Implement later - regex not testing
+         * private string getDataFromProfileElement(string profileLine)
+        {
+            Match regMatch = Regex.Match(profileLine.Trim(), @"<([A-Za-z0-9\-.]+)>([A-Za-z0-9\-.]+)</([A-Za-z0-9\-.]+)>", RegexOptions.IgnoreCase);
+
+            // Here we check the Match instance.
+            if ((regMatch.Success == true))
+            {
+
+                return regMatch.Groups[1].Value;
+
+            }
+            else
+            {
+                ZapLog("Unable to load data from " + profileLine); 
+                return "";
+                
+            } 
+
+        }
+         * 
+         * */
+
+        private WoWPoint getWowPointFromHotspot(string hotspotString)
+        {
+
+            try
+            {
+                WoWPoint returnPoint = new WoWPoint();
+
+
+
+                Match xMatch = Regex.Match(hotspotString, @"X=\""([A-Za-z0-9\-.]+)\""", RegexOptions.IgnoreCase);
+                Match yMatch = Regex.Match(hotspotString, @"Y=\""([A-Za-z0-9\-.]+)\""", RegexOptions.IgnoreCase);
+                Match zMatch = Regex.Match(hotspotString, @"Z=\""([A-Za-z0-9\-.]+)\""", RegexOptions.IgnoreCase);
+
+                // Here we check the Match instance.
+                if ((xMatch.Success == true) && (yMatch.Success == true) && (zMatch.Success == true))
+                {
+
+                    returnPoint.X = xMatch.Groups[1].Value.ToFloat();
+                    returnPoint.Y = yMatch.Groups[1].Value.ToFloat();
+                    returnPoint.Z = zMatch.Groups[1].Value.ToFloat();
+
+                    return returnPoint;
+
+                }
+                else
+                {
+                    ZapLog("Error - Unable to parse hotspot from " + hotspotString.Trim());
+                    return returnPoint;
+                }
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "GetWoWPointFromHotspot");
+                return new WoWPoint(0, 0, 0);
+            }
+
+        }
+
+        private float MyDistanceTo(WoWPoint hotspot)
+        {
+
+            return ObjectManager.Me.GetPosition().Distance(hotspot);
+        }
+
+        private void MoveToPoint(WoWPoint inputPoint)
+        {
+            try
+            {
+
+
+                ZapLog("Stopping movement to prepare to move to hotspot");
+                Styx.WoWInternals.WoWMovement.MoveStop();
+                //ZapLog(string.Format(CultureInfo.CreateSpecificCulture("en-US"), "Moving to X=\"{0}\" Y=\"{1}\" Z=\"{2}\"", inputPoint.X, inputPoint.Y, inputPoint.Z));
+                
+                //if(!Styx.StyxWoW.Me.IsFlying) {
+                //    ZapLog("Not yet moving.. mount up!");
+                //    Flightor.MountHelper.MountUp();
+                //}
+
+                //double targetXLocation = 1234;
+                //double targetYLocation = 84;
+                //double targetZLocation = -34; 
+
+                int loopCounter = 0;
+                int max_loops = 100;
+                while (!StyxWoW.Me.ToUnit().IsMoving && (loopCounter < max_loops))
+                {
+                    Flightor.MoveTo(inputPoint);
+                    Thread.Sleep(5);
+                    loopCounter++;
+                }
+
+                ZapLog("Exited move successful loop after " + loopCounter.ToString() + " tries");
+                
+                //WoWPoint moveTo = new WoWPoint(targetXLocation, targetYLocation, targetZLocation);
+                //Flightor.MoveTo(moveTo);
+                
+                
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex,"MoveToPoint");
+            }
+        }
+        
+
+        
+
+        
+
+        
+
+        
+
+        #region Test Profile Tab
+        
+        private void btnGoToHotspot_Click(object sender, EventArgs e)
+        {
+            if(listTestHotspots.Items.Count < 1)
+            {
+                ZapLog("You do not have any hotspots to go to.");
+                return;
+            }
+
+            if (listTestHotspots.SelectedItem == null)
+            {
+                ZapLog("You must select a hotspot to go to it!");
+                return;
+            }
+
+            WoWPoint hotSpotPoint = getWowPointFromHotspot(listTestHotspots.SelectedItem.ToString());
+            MoveToPoint(hotSpotPoint);
+            
+        }
+
+        private void btnPrevHotspot_Click(object sender, EventArgs e)
+        {
+            if (listTestHotspots.Items.Count < 1)
+            {
+                ZapLog("You do not have any hotspots to go to.");
+                return;
+            }
+
+            if (listTestHotspots.SelectedIndex == 0)
+            {
+                listTestHotspots.SelectedIndex = (listTestHotspots.Items.Count - 1);
+            }
+            else
+            {
+                listTestHotspots.SelectedIndex--;
+            }
+
+            WoWPoint hotSpotPoint = getWowPointFromHotspot(listTestHotspots.SelectedItem.ToString());
+
+            MoveToPoint(hotSpotPoint);
+        }
+
+        private void btnNextHotspot_Click(object sender, EventArgs e)
+        {
+            if (listTestHotspots.Items.Count < 1)
+            {
+                ZapLog("You do not have any hotspots to go to.");
+                return;
+            }
+
+            if (listTestHotspots.SelectedIndex == (listTestHotspots.Items.Count - 1))
+            {
+                listTestHotspots.SelectedIndex = 0;
+            }
+            else
+            {
+                listTestHotspots.SelectedIndex++;
+            }
+
+            WoWPoint hotSpotPoint = getWowPointFromHotspot(listTestHotspots.SelectedItem.ToString());
+
+            MoveToPoint(hotSpotPoint);
+            
+        }
+
+        private void btnReplaceHotspot_Click(object sender, EventArgs e)
+        {
+            int storedIndex = listTestHotspots.SelectedIndex;
+            hotspotsList[listTestHotspots.SelectedIndex] = getHotspot();
+            UpdateHotspotList();
+
+            listTestHotspots.SelectedIndex = storedIndex;
+            
+        }
+
+        private void btnAddHotspotAtIndex_Click(object sender, EventArgs e)
+        {
+            AddHotspot(listTestHotspots.SelectedIndex);
+        }
+        
+        private void btnDeleteHotspot_Click(object sender, EventArgs e)
+        {
+            if (listTestHotspots.Items.Count < 1)
+            {
+                ZapLog("You do not have any hotspots to go to.");
+                return;
+            }
+
+            if (listTestHotspots.SelectedItem == null)
+            {
+                ZapLog("You must select a hotspot to delete");
+                return;
+            }
+
+            hotspotsList.RemoveAt(listTestHotspots.SelectedIndex);
+            UpdateHotspotList();
+
+        }
+        
+        #endregion
+
+        
+
+        
 
 
 
