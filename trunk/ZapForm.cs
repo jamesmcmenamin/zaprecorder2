@@ -842,7 +842,14 @@ namespace ZapRecorder2
 
                         //BEGINNING OF THE PROFILE WRITING
                         writer.WriteLine("<HBProfile>");
-                        writer.WriteLine("<Name>" + ObjectManager.Me.ZoneText + "</Name>");
+                        if (txtProfileName.Text.Trim() == "")
+                        {
+                            writer.WriteLine("<Name>" + ObjectManager.Me.ZoneText + "</Name>");
+                        }
+                        else
+                        {
+                            writer.WriteLine("<Name>" + txtProfileName.Text + "</Name>");
+                        }
                         writer.WriteLine("<MinDurability>" + txtMinDurability.Text + "</MinDurability>");
                         writer.WriteLine("<MinFreeBagSlots>" + txtMinFreeBagSlots.Text + "</MinFreeBagSlots>");
                         writer.WriteLine("");
