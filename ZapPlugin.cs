@@ -15,7 +15,7 @@ namespace ZapRecorder2
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
         public override Version Version { get { return new Version(1, 2, 2); } }
-        public static string SubVersion { get { return "$LastChangedRevision$"; } }
+        public static string SubVersion { get { return "$Revision$"; } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
