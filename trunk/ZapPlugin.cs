@@ -5,6 +5,8 @@ using System.Text;
 using Styx;
 using Styx.Plugins;
 using Styx.Common;
+using Styx.WoWInternals;
+
 using System.Windows.Media;
 
 namespace ZapRecorder2
@@ -12,7 +14,8 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 1, 1); } }
+        public override Version Version { get { return new Version(1, 2, 2); } }
+        public static string SubVersion { get { return "$LastChangedRevision$"; } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -26,6 +29,7 @@ namespace ZapRecorder2
         public override void Initialize()
         {
             Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
+            Logging.Write(Colors.CornflowerBlue, "Attached hotkey to ZapRecorder2");
        } 
 
         public override void Pulse()
@@ -33,7 +37,11 @@ namespace ZapRecorder2
 
         }
 
-        
+
+        public override void Dispose()
+        {
+            base.Dispose();
+        }
 
         public override void OnButtonPress()
         {
@@ -46,6 +54,8 @@ namespace ZapRecorder2
                     mainForm = new ZapMainForm();
                     mainForm.Show();
                     mainFormLoaded = true;
+
+                    
                 }
             }
             else
