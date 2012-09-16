@@ -7,15 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.IO;
+using System.Media;
+using System.Globalization;
+using System.Threading;
+
 using Styx;
 using Styx.Common;
 using Styx.WoWInternals;
-using System.Globalization;
-using System.Threading;
 using Styx.Pathing;
 using Styx.Helpers;
-using System.IO;
-using System.Media;
+
 
 // TODO - Blackspot notes
 
@@ -26,20 +28,24 @@ namespace ZapRecorder2
 
     public partial class ZapMainForm : Form
     {
-        public static List<string> hotspotsList, mailboxList, repairList, blackspotsList;
         public Thread backgroundThread, recordingThread;
         public WoWPoint oldLocation = new WoWPoint(0, 0, 0);
         public bool isRecording = false;
         public bool chatMessage = true;
 
+        private ZapHotspot HotspotMgr;
+        private ZapBlackspot BlackspotMgr;
+        private ZapMailbox MailboxMgr;
+        private ZapRepair RepairMgr;
+
         public ZapMainForm()
         {
             InitializeComponent();
 
-            hotspotsList = new List<string>();
-            mailboxList = new List<string>();
-            repairList = new List<string>();
-            blackspotsList = new List<string>();
+            HotspotMgr = new ZapHotspot();
+            BlackspotMgr = new ZapBlackspot();
+            MailboxMgr = new ZapMailbox();
+            RepairMgr = new ZapRepair();
 
             backgroundThread = new Thread(new ThreadStart(BackgroundPulse));
             backgroundThread.IsBackground = true;
@@ -54,6 +60,7 @@ namespace ZapRecorder2
 
             ((Control)this.tabTest).Enabled = false;
 
+            
 
             //Lua.Events.AttachEvent("MODIFIER_STATE_CHANGED", HandleModifierStateChanged);
             //ZapLog("Registered RControl as hotkey with LUA");
@@ -98,60 +105,6 @@ namespace ZapRecorder2
 
         }
 
-        private void HandleZapHotkey()
-        {
-            ZapLog("LControl Pressed from Hotkey class!");
-        }
-
-        public void HandleModifierStateChanged(object sender, LuaEventArgs args)
-        {
-
-            ZapLog("Modifier handler fired");
-            // Args[1] says that the key is being pressed and not released
-            if (Convert.ToInt32(args.Args[1]) == 1)
-            {
-                if(args.Args[0].ToString() == "LCTRL") {
-                    //ToggleRecording();
-                    ZapLog("Got LCTRL");
-                }
-                else if (args.Args[0].ToString() == "LSHIFT")
-                {
-                    //AddHotspot();
-                    ZapLog("Got LCTRL");
-                }
-                else
-                {
-                    ZapLog("Received unexecpted modifier: " + args.Args[0].ToString());
-                }
-            }
-        }
-
-        public void AddHotspot()
-        {
-            
-            hotspotsList.Add(getHotspot());
-            UpdateHotspotList();
-        }
-
-        public void AddHotspot(int index)
-        {
-            hotspotsList.Insert(index,getHotspot());
-            UpdateHotspotList();
-        }
-
-        
-        public void onTop_CheckedChanged(object sender, EventArgs arg)
-        {
-            if (onTop.Checked == true)
-            {
-                this.TopMost = true;
-            }
-            else
-            {
-                this.TopMost = false;
-            }
-        }
-
         /*
          * Sound temporarily disabled
         public void PlaySound(string fileName)
@@ -161,29 +114,9 @@ namespace ZapRecorder2
          * 
          * */
         //Writes to the log
-        public void ZapLog(string msg)
-        {
-            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] - " + msg + Environment.NewLine;
-        }
 
-        public void ZapException(Exception ex)
-        {
-            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] [ERROR] - " + ex.Message + Environment.NewLine;
-        }
+        
 
-        public void ZapException(Exception ex, string exLocation)
-        {
-            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] [ERROR in " + exLocation + "] - " + ex.Message + Environment.NewLine;
-        }
-
-        public void ShowWoWChatMessage(string message)
-        {
-            //if (chatMessage == true)
-            //{
-                Lua.DoString("getglobal(\"ChatFrame1\"):AddMessage(\"|cff2dbbc4ZapRecorder2: |cffffffff " + message + "\",0, 0, 0, 0);");
-            //}
-
-        }
 
         private void txtLog_TextChanged(object sender, EventArgs e)
         {
@@ -612,10 +545,10 @@ namespace ZapRecorder2
 
                 try
                 {
-                    lblBlackspots.Text = "Blackspots: " + blackspotsList.Count().ToString();
-                    lblVendors.Text = "Vendors: " + repairList.Count().ToString();
-                    lblHotspots.Text = "Hotspots: " + hotspotsList.Count().ToString();
-                    lblMailboxes.Text = "Mailboxes: " + mailboxList.Count().ToString();
+                    lblBlackspots.Text = "Blackspots: " + BlackspotMgr.Count;
+                    lblVendors.Text = "Vendors: " + RepairMgr.Count;
+                    lblHotspots.Text = "Hotspots: " + HotspotMgr.Count;
+                    lblMailboxes.Text = "Mailboxes: " + MailboxMgr.Count;
                     // Do not attempt to update location. Frequent calls WILL crash HB
                 }
                 catch (Exception ex)
@@ -623,54 +556,6 @@ namespace ZapRecorder2
                     // REMOVEME
                     ZapException(ex, "BackgroundPulse");
                 }
-            }
-        }
-
-        private void addBlackspotButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void clearBlackspotsButton_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Clear all blackspots?", this.Text) == true)
-            {
-                blackspotsList.Clear();
-            }
-        }
-
-        private void clearHotspotsButton_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Clear all hotspots?", this.Text) == true)
-            {
-                hotspotsList.Clear();
-            }
-        }
-
-        private void addMailboxButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void clearMailboxesButton_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Clear all mailboxes?", this.Text) == true)
-            {
-                mailboxList.Clear();
-            }
-        }
-
-        private void addVendorsButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnClearHotspots_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to clear all hotspots?", this.Text) == true)
-            {
-                hotspotsList.Clear();
-                UpdateHotspotList();
             }
         }
 
@@ -686,13 +571,12 @@ namespace ZapRecorder2
                             PlaySound("bloop.wav");
                         }
                         */
-
-                        ZapLog("Adding: " + getHotspot());
                     
                     
                         oldLocation = new WoWPoint(ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
-                    
-                        AddHotspot();
+
+                        HotspotMgr.Add();
+                        UpdateHotspotList();
 
                         // Delay according to recording time
                         Thread.Sleep(Convert.ToInt32(recordingTimeTextbox.Text));
@@ -721,6 +605,7 @@ namespace ZapRecorder2
             ZapLog("RecordingPulse restarted after a crash!");
         }
 
+        //TODO - Move this to hotspot class
         public bool HasMovedNeedsHotspot()
         {
             try
@@ -734,52 +619,7 @@ namespace ZapRecorder2
             }
         }
 
-        public bool MessageBoxHelper(string text, string title)
-        {
-            DialogResult dialog = MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (dialog == DialogResult.Yes)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool MessageBoxHelper(string text, string title,MessageBoxButtons boxButtons)
-        {
-            DialogResult dialog = MessageBox.Show(text, title, boxButtons, MessageBoxIcon.Question);
-
-            if ((dialog == DialogResult.Yes) || (dialog == DialogResult.OK))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool MessageBoxHelper(string text, string title, MessageBoxButtons boxButtons, MessageBoxIcon boxIcon)
-        {
-            DialogResult dialog = MessageBox.Show(text, title, boxButtons, boxIcon);
-
-            if ((dialog == DialogResult.Yes) || (dialog == DialogResult.OK))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public static string getHotspot()
-        {
-            return string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Hotspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
-        }
+        
 
         private void btnRecording_Click(object sender, EventArgs e)
         {
@@ -822,9 +662,10 @@ namespace ZapRecorder2
             }
         }
 
+        //TODO - REDO SAVE PROFILE ENTIRELY
         public void SaveProfile()
         {
-            if(hotspotsList.Count() >= 1)
+            if(HotspotMgr.Count >= 1)
             {
 
                 try
@@ -833,8 +674,6 @@ namespace ZapRecorder2
 
                     if (dlgSaveFile.ShowDialog() == DialogResult.OK)
                     {
-                        ZapLog("Received a save to location of: " + dlgSaveFile.FileName);
-
                         string path = dlgSaveFile.FileName;
 
                         StreamWriter writer = new StreamWriter(path);
@@ -842,6 +681,14 @@ namespace ZapRecorder2
 
                         //BEGINNING OF THE PROFILE WRITING
                         writer.WriteLine("<HBProfile>");
+
+                        writer.WriteLine("///////////////////////////////////////////////////");
+                        writer.WriteLine("//                                               //");
+                        writer.WriteLine("// Profile generated with ZapRecorder2 v1.2.0    //");
+                        writer.WriteLine("// Created by BadWolf                            //");
+                        writer.WriteLine("//                                               //");
+                        writer.WriteLine("///////////////////////////////////////////////////");
+
                         if (txtProfileName.Text.Trim() == "")
                         {
                             writer.WriteLine("<Name>" + ObjectManager.Me.ZoneText + "</Name>");
@@ -964,16 +811,22 @@ namespace ZapRecorder2
 
                         writer.WriteLine("<Vendors>");
 
-                        foreach (string vend in repairList)
-                            writer.WriteLine(vend);
+
+                        foreach (RepairMerchant merchant in RepairMgr.Merchants)
+                        {
+                            writer.WriteLine(merchant.ToHotspot());
+                        }
 
                         writer.WriteLine("</Vendors>");
                         writer.WriteLine("");
 
+                        
                         writer.WriteLine("<Mailboxes>");
 
-                        foreach (string mail in mailboxList)
-                            writer.WriteLine(mail);
+                        foreach (WoWPoint mailPoint in MailboxMgr.Mailboxes)
+                        {
+                            writer.WriteLine(MailboxMgr.WowPointToHotspot(mailPoint));
+                        }
 
                         writer.WriteLine("</Mailboxes>");
                         writer.WriteLine("");
@@ -981,22 +834,27 @@ namespace ZapRecorder2
 
                         writer.WriteLine("<Blackspots>");
 
-                        foreach (string black in blackspotsList)
-                            writer.WriteLine(black);
+                        foreach (WoWPoint blackspotPoint in BlackspotMgr.Blackspots)
+                        {
+                            writer.WriteLine(BlackspotMgr.WowPointToHotspot(blackspotPoint));
+                        }
 
                         writer.WriteLine("</Blackspots>");
                         writer.WriteLine("");
 
+
                         writer.WriteLine("<Hotspots>");
 
-                        //HOTSPOTS
-                        foreach (string loc in hotspotsList)
-                            writer.WriteLine(loc);
+                        foreach (WoWPoint hotspotPoint in HotspotMgr.Hotspots)
+                        {
+                            writer.WriteLine(HotspotMgr.WowPointToHotspot(hotspotPoint));
+                        }
 
+                        writer.WriteLine("</Hotspots>");
 
                         #endregion
 
-                        writer.WriteLine("</Hotspots>");
+
                         writer.WriteLine("</HBProfile>");
                         writer.Close();
 
@@ -1020,118 +878,54 @@ namespace ZapRecorder2
             }
         }
 
-        private void AddBlackspot()
-        {
-            try
-            {
-                string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
-                blackspotsList.Add(tempBlackspot);
-                UpdateBlackspotList();
-            }
-            catch (Exception ex)
-            {
-                ZapException(ex, "AddBlackspot");
-            }
-        }
-
         private void btnAddBlackspot_Click(object sender, EventArgs e)
         {
             if (MessageBoxHelper("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
             {
-                AddBlackspot();
+                BlackspotMgr.Add();
+                UpdateBlackspotList();
+
                 ZapLog("Added blackspot");
                 ShowWoWChatMessage("Blackspot added at your location");
             }
         }
 
+        //TODO - Change this to use Mailbox class
         private void btnAddMailbox_Click(object sender, EventArgs e)
         {
             if (MessageBoxHelper("Are you standing next to a mailbox?", this.Text) == true)
             {
-                string tempMailbox = "<Mailbox" + getHotspot().Replace("<Hotspot", "");
-                ZapLog("Adding: " + tempMailbox);
-                mailboxList.Add(tempMailbox);
+                MailboxMgr.Add();
                 UpdateMailboxList();
+
                 ShowWoWChatMessage("Mailbox added at your location");
             }
         }
 
         private void btnAddRepair_Click(object sender, EventArgs e)
         {
-            //IsRepairMerchant
-            if (ObjectManager.Me.GotTarget == true)
-            {
-                if (ObjectManager.Me.CurrentTarget.IsRepairMerchant == true)
-                {
-                    string tempVendor = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Vendor Name=\"{0}\" Entry=\"{1}\" Type=\"{2}\" X=\"{3}\" Y=\"{4}\" Z=\"{5}\" />",
-                        ObjectManager.Me.CurrentTarget.Name, ObjectManager.Me.CurrentTarget.Entry.ToString(), "Repair", ObjectManager.Me.CurrentTarget.X.ToString(), ObjectManager.Me.CurrentTarget.Y.ToString(),
-                        ObjectManager.Me.CurrentTarget.Z.ToString());
-
-                    if (MessageBoxHelper("Do you want to add this repair NPC?\n\n" + tempVendor, this.Text) == true)
-                    {
-                        ZapLog("Adding: " + tempVendor);
-                        repairList.Add(tempVendor);
-                        UpdateRepairList();
-                        ShowWoWChatMessage("Repair vendor added at your location");
-                    }
-                }
-                else
-                {
-                    ZapLog(ObjectManager.Me.CurrentTarget.Name + " is not a repair NPC");
-                    MessageBox.Show(ObjectManager.Me.CurrentTarget.Name + " is not a repair NPC");
-                }
-            }
-            else if (ObjectManager.Me.GotTarget != true)
-            {
-                MessageBox.Show("You do not have a target");
-            }
+            AddRepairMerchant();
         }
 
-        private void btnSaveProfile_Click(object sender, EventArgs e)
-        {
-            SaveProfile();
-        }
-
+        
         private void btnClearEverything_Click(object sender, EventArgs e)
         {
             if (MessageBoxHelper("Are you sure you wish to clear everything from this profile?", this.Text) == true)
             {
-                hotspotsList.Clear();
-                blackspotsList.Clear();
-                mailboxList.Clear();
-                repairList.Clear();
+                HotspotMgr.Clear();
+                UpdateHotspotList();
+
+                BlackspotMgr.Clear();
+                UpdateBlackspotList();
+
+                MailboxMgr.Clear();
+                UpdateMailboxList();
+
+                RepairMgr.Clear();
+                UpdateRepairList();
 
                 ZapLog("Cleared everything from the current profile");
             }
-        }
-
-        private void btnClearAllMailboxes_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Clear all mailboxes?", this.Text) == true)
-            {
-                mailboxList.Clear();
-                UpdateMailboxList();
-            }
-        }
-
-        private void btnClearBlackspots_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to clear all blackspots?", this.Text) == true)
-            {
-                blackspotsList.Clear();
-            }
-
-            UpdateBlackspotList();
-        }
-
-        private void btnClearAllRepair_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Clear all vendors?", this.Text) == true)
-            {
-                repairList.Clear();
-            }
-
-            UpdateRepairList();
         }
 
         public void UpdateHotspotList()
@@ -1141,10 +935,10 @@ namespace ZapRecorder2
                 listHotspots.Items.Clear();
                 listTestHotspots.Items.Clear();
 
-                foreach (string q in hotspotsList)
+                foreach (WoWPoint hotspotPoint in HotspotMgr.Hotspots)
                 {
-                    listHotspots.Items.Add(q);
-                    listTestHotspots.Items.Add(q);
+                    listHotspots.Items.Add(HotspotMgr.WowPointToHotspot(hotspotPoint));
+                    listTestHotspots.Items.Add(HotspotMgr.WowPointToHotspot(hotspotPoint));
                 }
             }
             catch (Exception ex)
@@ -1158,9 +952,9 @@ namespace ZapRecorder2
             try {
                 listBlackspots.Items.Clear();
 
-                foreach (string q in blackspotsList)
+                foreach (WoWPoint blackspotPoint in BlackspotMgr.Blackspots)
                 {
-                    listBlackspots.Items.Add(q);
+                    listBlackspots.Items.Add(BlackspotMgr.WowPointToHotspot(blackspotPoint));
                 }
             }
             catch (Exception ex)
@@ -1176,9 +970,9 @@ namespace ZapRecorder2
 
                 listRepair.Items.Clear();
 
-                foreach (string q in repairList)
+                foreach (RepairMerchant merchant in RepairMgr.Merchants)
                 {
-                    listRepair.Items.Add(q);
+                    listRepair.Items.Add(merchant.ToHotspot());
                 }
             }
             catch (Exception ex)
@@ -1193,9 +987,9 @@ namespace ZapRecorder2
             {
                 listMailboxes.Items.Clear();
 
-                foreach (string q in mailboxList)
+                foreach (WoWPoint mailboxPoint in MailboxMgr.Mailboxes)
                 {
-                    listMailboxes.Items.Add(q);
+                    listMailboxes.Items.Add(MailboxMgr.WowPointToHotspot(mailboxPoint));
                 }
             }
             catch (Exception ex)
@@ -1204,276 +998,42 @@ namespace ZapRecorder2
             }
         }
 
-        private void btnClearSelectedHotspots_Click(object sender, EventArgs e)
-        {
-            if (listHotspots.SelectedItems.Count > 0)
-            {
-                if (MessageBoxHelper("Remove selected hotspot?\n\n" + listHotspots.SelectedItem.ToString(), this.Text) == true)
-                {
-                    ZapMainForm.hotspotsList.Remove(listHotspots.SelectedItem.ToString());
-                    UpdateHotspotList();
-                }
-            }
-        }
-
-        private void btnClearSelectedBlackspot_Click(object sender, EventArgs e)
-        {
-            if (listBlackspots.SelectedItems.Count > 0)
-            {
-                if (MessageBoxHelper("Are you sure you wish to remove the selected blackspot?\n\n" + listBlackspots.SelectedItem.ToString(), this.Text) == true)
-                {
-                    blackspotsList.Remove(listBlackspots.SelectedItem.ToString());
-                    UpdateBlackspotList();
-                }
-            }
-        }
-
-        private void btnClearSelectedRepair_Click(object sender, EventArgs e)
-        {
-            if (listRepair.SelectedItems.Count > 0)
-            {
-                if (MessageBoxHelper("Remove selected vendor?\n\n" + listRepair.SelectedItem.ToString(), this.Text) == true)
-                {
-                    repairList.Remove(listRepair.SelectedItem.ToString());
-                    UpdateRepairList();
-                }
-            }
-        }
-
-        private void btnClearSelectedMailboxes_Click(object sender, EventArgs e)
-        {
-            if (listMailboxes.SelectedItems.Count > 0)
-            {
-                if (MessageBoxHelper("Remove selected mailbox?\n\n" + listMailboxes.SelectedItem.ToString(), this.Text) == true)
-                {
-                    mailboxList.Remove(listMailboxes.SelectedItem.ToString());
-                    UpdateMailboxList();
-                }
-            }
-        }
-
-        private void btnAddBlackspot2_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
-            {
-                string tempBlackspot = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z, numericUpDown1.Value.ToString());
-                ZapLog("Added: " + tempBlackspot);
-                blackspotsList.Add(tempBlackspot);
-                UpdateBlackspotList();
-                ShowWoWChatMessage("Blackspot added at your location");
-            }
-        }
-
-        private void btnAddMailbox2_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you standing next to a mailbox?", this.Text) == true)
-            {
-                string tempMailbox = "<Mailbox" + getHotspot().Replace("<Hotspot", "");
-                ZapLog("Adding: " + tempMailbox);
-                mailboxList.Add(tempMailbox);
-                UpdateMailboxList();
-                ShowWoWChatMessage("Mailbox added at your location");
-            }
-        }
-
-        // Merge this with other add repair
-        private void btnAddRepair2_Click(object sender, EventArgs e)
-        {
-            //IsRepairMerchant
-            if (ObjectManager.Me.GotTarget == true)
-            {
-                if (ObjectManager.Me.CurrentTarget.IsRepairMerchant == true)
-                {
-                    string tempVendor = string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Vendor Name=\"{0}\" Entry=\"{1}\" Type=\"{2}\" X=\"{3}\" Y=\"{4}\" Z=\"{5}\" />",
-                        ObjectManager.Me.CurrentTarget.Name, ObjectManager.Me.CurrentTarget.Entry.ToString(), "Repair", ObjectManager.Me.CurrentTarget.X.ToString(), ObjectManager.Me.CurrentTarget.Y.ToString(),
-                        ObjectManager.Me.CurrentTarget.Z.ToString());
-
-                    if (MessageBoxHelper("Do you want to add this NPC as a vendor?\n\n" + tempVendor, this.Text) == true)
-                    {
-                        ZapLog("Adding: " + tempVendor);
-                        repairList.Add(tempVendor);
-                        UpdateRepairList();
-                        ShowWoWChatMessage("Repair vendor added at your location");
-                    }
-                }
-                else
-                {
-                    ZapLog(ObjectManager.Me.CurrentTarget.Name + " is not an RepairMerchant");
-                    MessageBox.Show(ObjectManager.Me.CurrentTarget.Name + " is not an RepairMerchant");
-                }
-            }
-            else if (ObjectManager.Me.GotTarget != true)
-            {
-                MessageBox.Show("You dont have any target!");
-            }
-        }
-
-        private void btnReverseHotspots_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to reverse all hotspots?", this.Text) == true)
-            {
-                hotspotsList.Reverse();
-                UpdateHotspotList();
-                ZapLog("Reversed hotspots");
-            }
-        }
-
-        private void btnLoadHotspots_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to load hotspots from an existing profile? \n\n Please note that this will DELETE all existing hotspots!", this.Text) == true)
-            {
-                OpenFileDialog dialog = new OpenFileDialog();
-                DialogResult results = new DialogResult();
-
-                results = dialog.ShowDialog();
-
-                if (results == DialogResult.OK)
-                {
-                    hotspotsList.Clear();
-                    UpdateHotspotList();
-
-                    string tempLine;
-
-                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
-                    while ((tempLine = file.ReadLine()) != null)
-                    {
-                        if (tempLine.Contains("<Hotspot "))
-                        {
-                            if(!hotspotsList.Contains(tempLine))
-                            {
-                                hotspotsList.Add(tempLine);
-                            }
-                        }
-                    }
-
-                    UpdateHotspotList();
-                    ZapLog("Loaded hotspots from profile");
-                }
-            }
-        }
-
-        private void btnLoadBlackspots_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to load blackspots from an existing profile?", this.Text) == true)
-            {
-                OpenFileDialog dialog = new OpenFileDialog();
-                DialogResult results = new DialogResult();
-
-                results = dialog.ShowDialog();
-
-                if (results == DialogResult.OK)
-                {
-                    string tempLine;
-
-                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
-                    while ((tempLine = file.ReadLine()) != null)
-                    {
-                        if (tempLine.Contains("<Blackspot "))
-                        {
-                            if (!blackspotsList.Contains(tempLine))
-                            {
-                                blackspotsList.Add(tempLine);
-                            }
-                        }
-                    }
-
-                    UpdateBlackspotList();
-                    ZapLog("Loaded blackspots from profile");
-                }
-            }
-        }
-
-        private void btnLoadRepair_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to load repair vendors from an existing profile?", this.Text) == true)
-            {
-                OpenFileDialog dialog = new OpenFileDialog();
-                DialogResult results = new DialogResult();
-
-                results = dialog.ShowDialog();
-
-                if (results == DialogResult.OK)
-                {
-                    string tempLine;
-
-                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
-                    while ((tempLine = file.ReadLine()) != null)
-                    {
-                        if (tempLine.Contains("<Vendor "))
-                        {
-                            if (!repairList.Contains(tempLine))
-                            {
-                                repairList.Add(tempLine);
-                            }
-                        }
-                    }
-
-                    UpdateRepairList();
-                    ZapLog("Loaded vendors from profile");
-                }
-            }
-        }
-
-        private void btnLoadMailboxes_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxHelper("Are you sure you wish to load mailboxes from an existing profile?", this.Text) == true)
-            {
-                OpenFileDialog dialog = new OpenFileDialog();
-                DialogResult results = new DialogResult();
-
-                results = dialog.ShowDialog();
-
-                if (results == DialogResult.OK)
-                {
-                    string tempLine;
-
-                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
-                    while ((tempLine = file.ReadLine()) != null)
-                    {
-                        if (tempLine.Contains("<Mailbox "))
-                        {
-                            if (!mailboxList.Contains(tempLine))
-                            {
-                                mailboxList.Add(tempLine);
-                            }
-                        }
-                    }
-
-                    UpdateMailboxList();
-                    ZapLog("Loaded mailboxes from profile");
-                }
-            }
-        }
-
         private void btnLocRefresh_Click(object sender, EventArgs e)
         {
             lblLocation.Text = "X = " + ObjectManager.Me.Location.X + ", Y = " + ObjectManager.Me.Location.Y + ", Z = " + ObjectManager.Me.Location.Z;
         }
 
+
         private void btnAddHotspot_Click(object sender, EventArgs e)
         {
-            AddHotspot();
-            ZapLog("Added " + getHotspot());
+            HotspotMgr.Add();
+            UpdateHotspotList();
+
+            //ZapLog("Added " + getHotspot());
 
         }
 
-        private void chkChatMessage_CheckedChanged(object sender, EventArgs e)
+        
+
+        private string getProfileDataString(string profileLine, string nodeName)
         {
-            if (chkChatMessage.Checked == true)
-            {
-                //WoWHelper
-                Logging.Write("Turning on chat messages.");
-            }
-            else
-            {
-                chatMessage = false;
-                ZapLog("Turning off chat messages.");
-            }
+            return profileLine.Replace("<" + nodeName + ">", "").Replace("</" + nodeName + ">", "").Trim();
         }
 
+        private bool getProfileDataBool(string profileLine, string nodeName)
+        {
+            return profileLine.Replace("<" + nodeName + ">", "").Replace("</" + nodeName + ">", "").Trim().ToBoolean();
+        }
+
+
+        #region Profile Info Tab
+
+        //TODO - CREATE PROFILE CLASS
+        //TODO - MAKE PROFILE CLASS USE HOTSPOT CLASS
+        
         private void btnOpenProfile_Click(object sender, EventArgs e)
         {
-            if (MessageBoxHelper("Loading a profile will replace all current hotspots, settings, etc..\n\n", "Confirm Open Profile",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning) == true)
+            if (MessageBoxHelper("Loading a profile will replace all current hotspots, settings, etc..\n\n", "Confirm Open Profile", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == true)
             {
                 OpenFileDialog dialog = new OpenFileDialog();
                 DialogResult results = new DialogResult();
@@ -1482,21 +1042,21 @@ namespace ZapRecorder2
 
                 if (results == DialogResult.OK)
                 {
-                    hotspotsList.Clear();
-                    UpdateHotspotList(); 
-                    
-                    blackspotsList.Clear();
+                    HotspotMgr.Clear();
+                    UpdateHotspotList();
+
+                    BlackspotMgr.Clear();
                     UpdateBlackspotList();
 
-                    mailboxList.Clear();
+                    MailboxMgr.Clear();
                     UpdateMailboxList();
 
-                    repairList.Clear();
+                    RepairMgr.Clear();
                     UpdateRepairList();
 
                     ZapLog("Loading profile " + dialog.FileName);
 
-                    
+
 
                     string tempLine;
 
@@ -1505,32 +1065,32 @@ namespace ZapRecorder2
                     {
                         if (tempLine.Contains("<Hotspot "))
                         {
-                            if (!hotspotsList.Contains(tempLine))
+                            if (!HotspotMgr.Exists(tempLine))
                             {
-                                hotspotsList.Add(tempLine.Trim());
+                                HotspotMgr.Add(tempLine.Trim());
                             }
                         }
                         else if (tempLine.Contains("<Blackspot "))
                         {
-                            if (!blackspotsList.Contains(tempLine))
+                            if (!BlackspotMgr.Exists(tempLine))
                             {
-                                blackspotsList.Add(tempLine.Trim());
+                                BlackspotMgr.Add(tempLine.Trim());
                             }
                         }
                         else if (tempLine.Contains("<Mailbox "))
                         {
 
-                            if (!mailboxList.Contains(tempLine))
+                            if (!HotspotMgr.Exists(tempLine))
                             {
-                                mailboxList.Add(tempLine.Trim());
+                                MailboxMgr.Add(tempLine.Trim());
                             }
                         }
                         else if (tempLine.Contains("<Vendor ") && tempLine.Contains("Repair"))
                         {
 
-                            if (!repairList.Contains(tempLine))
+                            if (!RepairMgr.Exists(tempLine))
                             {
-                                repairList.Add(tempLine.Trim());
+                                RepairMgr.Add(tempLine.Trim());
                             }
                         }
                         else if (tempLine.Contains("<Name"))
@@ -1597,156 +1157,336 @@ namespace ZapRecorder2
                         {
                             txtFactions.Text = getProfileDataString(tempLine, "Factions");
                         }
-                        
+
 
                     }
 
                     file.Close();
 
-                    //MinDurability
-                    //MinFreeBagSlots
-                    //MinLevel
-                    //MaxLevel
-                    //Factions
-                    
+
                     UpdateHotspotList();
                     UpdateBlackspotList();
                     UpdateMailboxList();
                     UpdateRepairList();
+
                     ZapLog("Profile load complete!");
                 }
             }
         }
 
-        private string getProfileDataString(string profileLine, string nodeName)
+        private void btnSaveProfile_Click(object sender, EventArgs e)
         {
-            return profileLine.Replace("<" + nodeName + ">", "").Replace("</" + nodeName + ">", "").Trim();
+            SaveProfile();
         }
 
-        private bool getProfileDataBool(string profileLine, string nodeName)
-        {
-            return profileLine.Replace("<" + nodeName + ">", "").Replace("</" + nodeName + ">", "").Trim().ToBoolean();
-        }
+        #endregion
 
-        /* Implement later - regex not testing
-         * private string getDataFromProfileElement(string profileLine)
-        {
-            Match regMatch = Regex.Match(profileLine.Trim(), @"<([A-Za-z0-9\-.]+)>([A-Za-z0-9\-.]+)</([A-Za-z0-9\-.]+)>", RegexOptions.IgnoreCase);
+        #region Hotspots Tab
 
-            // Here we check the Match instance.
-            if ((regMatch.Success == true))
+        //TODO - Clear multiple hotspots from hotspots tab
+        private void btnClearSelectedHotspots_Click(object sender, EventArgs e)
+        {
+            if (HotspotMgr.Count > 0)
             {
-
-                return regMatch.Groups[1].Value;
-
+                if (MessageBoxHelper("Remove selected hotspot?\n\n" + listHotspots.SelectedItem.ToString(), this.Text) == true)
+                {
+                    HotspotMgr.Delete(listHotspots.SelectedIndex);
+                    UpdateHotspotList();
+                }
             }
-            else
-            {
-                ZapLog("Unable to load data from " + profileLine); 
-                return "";
-                
-            } 
-
         }
-         * 
-         * */
 
-        private WoWPoint getWowPointFromHotspot(string hotspotString)
+        private void btnClearHotspots_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to clear all hotspots?", this.Text) == true)
+            {
+                HotspotMgr.Clear();
+                UpdateHotspotList();
+            }
+        }
+
+        private void btnReverseHotspots_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to reverse all hotspots?", this.Text) == true)
+            {
+                HotspotMgr.Reverse();
+                UpdateHotspotList();
+                ZapLog("Reversed hotspots");
+            }
+        }
+
+        private void btnLoadHotspots_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to load hotspots from an existing profile? \n\n Please note that this will DELETE all existing hotspots!", this.Text) == true)
+            {
+                OpenFileDialog dialog = new OpenFileDialog();
+                DialogResult results = new DialogResult();
+
+                results = dialog.ShowDialog();
+
+                if (results == DialogResult.OK)
+                {
+                    HotspotMgr.Clear();
+                    UpdateHotspotList();
+
+                    string tempLine;
+
+                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
+                    while ((tempLine = file.ReadLine()) != null)
+                    {
+                        if (tempLine.Contains("<Hotspot "))
+                        {
+                            if (!HotspotMgr.Exists(tempLine))
+                            {
+                                HotspotMgr.Add(tempLine);
+                            }
+                        }
+                    }
+
+                    UpdateHotspotList();
+                    ZapLog("Loaded hotspots from profile");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Blackspots Tab
+
+        private void btnAddBlackspot2_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you standing in the middle of the blackspot and have choosen the prefered radius?\nCurrent radius = " + numericUpDown1.Value.ToString(), this.Text) == true)
+            {
+                BlackspotMgr.Add();
+                UpdateBlackspotList();
+                ShowWoWChatMessage("Blackspot added at your location");
+            }
+        }
+
+        // TODO - TRY CATCHES ON ALL BUTTONS WHICH CAN THROW EXCEPTIONS
+        private void btnClearSelectedBlackspot_Click(object sender, EventArgs e)
+        {
+            if (listBlackspots.SelectedItems.Count > 0)
+            {
+                if (MessageBoxHelper("Are you sure you wish to remove the selected blackspot?\n\n" + listBlackspots.SelectedItem.ToString(), this.Text) == true)
+                {
+                    BlackspotMgr.Delete(listBlackspots.SelectedIndex);
+                    UpdateBlackspotList();
+                }
+            }
+        }
+
+        private void btnClearBlackspots_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to clear all blackspots?", this.Text) == true)
+            {
+                BlackspotMgr.Clear();
+            }
+
+            UpdateBlackspotList();
+        }
+
+        private void btnLoadBlackspots_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to load blackspots from an existing profile?", this.Text) == true)
+            {
+                OpenFileDialog dialog = new OpenFileDialog();
+                DialogResult results = new DialogResult();
+
+                results = dialog.ShowDialog();
+
+                if (results == DialogResult.OK)
+                {
+                    string tempLine;
+
+                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
+                    while ((tempLine = file.ReadLine()) != null)
+                    {
+                        if (tempLine.Contains("<Blackspot "))
+                        {
+                            if (!BlackspotMgr.Exists(tempLine))
+                            {
+                                BlackspotMgr.Add(tempLine);
+                            }
+                        }
+                    }
+
+                    UpdateBlackspotList();
+                    ZapLog("Loaded blackspots from profile");
+                }
+            }
+        }
+
+
+        #endregion
+
+        #region Mailbox Tab
+
+        private void btnAddMailbox2_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you standing next to a mailbox?", this.Text) == true)
+            {
+                MailboxMgr.Add();
+                UpdateMailboxList();
+                ShowWoWChatMessage("Mailbox added at your location");
+            }
+        }
+
+        private void btnClearSelectedMailboxes_Click(object sender, EventArgs e)
+        {
+            if (listMailboxes.SelectedItems.Count > 0)
+            {
+                if (MessageBoxHelper("Remove selected mailbox?\n\n" + listMailboxes.SelectedItem.ToString(), this.Text) == true)
+                {
+                    MailboxMgr.Delete(listMailboxes.SelectedIndex);
+                    UpdateMailboxList();
+                }
+            }
+        }
+
+        private void btnClearAllMailboxes_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Clear all mailboxes?", this.Text) == true)
+            {
+                MailboxMgr.Clear();
+                UpdateMailboxList();
+            }
+        }
+
+        // TODO - Loading of mailboxes and other items
+        private void btnLoadMailboxes_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to load mailboxes from an existing profile?", this.Text) == true)
+            {
+                OpenFileDialog dialog = new OpenFileDialog();
+                DialogResult results = new DialogResult();
+
+                results = dialog.ShowDialog();
+
+                if (results == DialogResult.OK)
+                {
+                    string tempLine;
+
+                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
+                    while ((tempLine = file.ReadLine()) != null)
+                    {
+                        if (tempLine.Contains("<Mailbox "))
+                        {
+                            if (!MailboxMgr.Exists(tempLine))
+                            {
+                                MailboxMgr.Add(tempLine);
+                            }
+                        }
+                    }
+
+                    UpdateMailboxList();
+                    ZapLog("Loaded mailboxes from profile");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Repair Tab
+
+
+        private void AddRepairMerchant()
         {
 
-            try
+            if (ObjectManager.Me.GotTarget == true)
             {
-                WoWPoint returnPoint = new WoWPoint();
+                string merchantName = ObjectManager.Me.CurrentTarget.Name;
 
-
-
-                Match xMatch = Regex.Match(hotspotString, @"X=\""([A-Za-z0-9\-.]+)\""", RegexOptions.IgnoreCase);
-                Match yMatch = Regex.Match(hotspotString, @"Y=\""([A-Za-z0-9\-.]+)\""", RegexOptions.IgnoreCase);
-                Match zMatch = Regex.Match(hotspotString, @"Z=\""([A-Za-z0-9\-.]+)\""", RegexOptions.IgnoreCase);
-
-                // Here we check the Match instance.
-                if ((xMatch.Success == true) && (yMatch.Success == true) && (zMatch.Success == true))
+                if (ObjectManager.Me.CurrentTarget.IsRepairMerchant == true)
                 {
 
-                    returnPoint.X = xMatch.Groups[1].Value.ToFloat();
-                    returnPoint.Y = yMatch.Groups[1].Value.ToFloat();
-                    returnPoint.Z = zMatch.Groups[1].Value.ToFloat();
+                    if (MessageBoxHelper("Do you want to add " + merchantName + " as a repair merchant?\n\n", "Confirm Repair NPC") == true)
+                    {
+                        ZapLog("Adding " + merchantName + " as a repair merchant");
 
-                    return returnPoint;
+                        RepairMgr.Add(ObjectManager.Me.CurrentTarget);
+                        UpdateRepairList();
 
+                        // Remove the WoW message because it is unlikely they will have WoW open while clicking add button
+                        //ShowWoWChatMessage("Added " + vendorName + " as a repair NPC");
+                    }
                 }
                 else
                 {
-                    ZapLog("Error - Unable to parse hotspot from " + hotspotString.Trim());
-                    return returnPoint;
+                    ZapLog("Cannot add " + merchantName + " as they are not a repair merchant");
                 }
             }
-            catch (Exception ex)
+            else if (ObjectManager.Me.GotTarget != true)
             {
-                ZapException(ex, "GetWoWPointFromHotspot");
-                return new WoWPoint(0, 0, 0);
+                ZapLog("Cannot add repair merchant as you do not have a target!");
             }
-
         }
 
-        private float MyDistanceTo(WoWPoint hotspot)
+        // Merge this with other add repair
+        private void btnAddRepair2_Click(object sender, EventArgs e)
         {
 
-            return ObjectManager.Me.GetPosition().Distance(hotspot);
+            AddRepairMerchant();
         }
 
-        private void MoveToPoint(WoWPoint inputPoint)
+        private void btnClearSelectedRepair_Click(object sender, EventArgs e)
         {
-            try
+            if (RepairMgr.Count > 0)
             {
-
-
-                ZapLog("Stopping movement to prepare to move to hotspot");
-                Styx.WoWInternals.WoWMovement.MoveStop();
-                //ZapLog(string.Format(CultureInfo.CreateSpecificCulture("en-US"), "Moving to X=\"{0}\" Y=\"{1}\" Z=\"{2}\"", inputPoint.X, inputPoint.Y, inputPoint.Z));
-                
-                //if(!Styx.StyxWoW.Me.IsFlying) {
-                //    ZapLog("Not yet moving.. mount up!");
-                //    Flightor.MountHelper.MountUp();
-                //}
-
-                //double targetXLocation = 1234;
-                //double targetYLocation = 84;
-                //double targetZLocation = -34; 
-
-                int loopCounter = 0;
-                int max_loops = 100;
-                while (!StyxWoW.Me.ToUnit().IsMoving && (loopCounter < max_loops))
+                if (MessageBoxHelper("Remove selected repair merchant?\n\n" + listRepair.SelectedItem.ToString(), "Confirm Deletion") == true)
                 {
-                    Flightor.MoveTo(inputPoint);
-                    Thread.Sleep(5);
-                    loopCounter++;
+                    RepairMgr.Delete(listRepair.SelectedIndex);
+                    UpdateRepairList();
                 }
-
-                ZapLog("Exited move successful loop after " + loopCounter.ToString() + " tries");
-                
-                //WoWPoint moveTo = new WoWPoint(targetXLocation, targetYLocation, targetZLocation);
-                //Flightor.MoveTo(moveTo);
-                
-                
-            }
-            catch (Exception ex)
-            {
-                ZapException(ex,"MoveToPoint");
             }
         }
-        
 
-        
+        private void btnClearAllRepair_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Clear all repair mechants?", "Confirm Deletion") == true)
+            {
+                RepairMgr.Clear();
+            }
 
-        
+            UpdateRepairList();
+        }
 
-        
+        private void btnLoadRepair_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxHelper("Are you sure you wish to load repair vendors from an existing profile?", this.Text) == true)
+            {
+                OpenFileDialog dialog = new OpenFileDialog();
+                DialogResult results = new DialogResult();
 
-        
+                results = dialog.ShowDialog();
+
+                if (results == DialogResult.OK)
+                {
+                    string tempLine;
+
+                    StreamReader file = new System.IO.StreamReader(@dialog.FileName);
+                    while ((tempLine = file.ReadLine()) != null)
+                    {
+                        if (tempLine.Contains("<Vendor "))
+                        {
+                            
+                            if (!RepairMgr.Exists(tempLine))
+                            {
+                                RepairMgr.Add(tempLine);
+                            }
+                        }
+                    }
+
+                    UpdateRepairList();
+                    ZapLog("Loaded vendors from profile");
+                }
+            }
+        }
+
+        #endregion
 
         #region Test Profile Tab
-        
+
         private void btnGoToHotspot_Click(object sender, EventArgs e)
         {
             if(listTestHotspots.Items.Count < 1)
@@ -1761,8 +1501,7 @@ namespace ZapRecorder2
                 return;
             }
 
-            WoWPoint hotSpotPoint = getWowPointFromHotspot(listTestHotspots.SelectedItem.ToString());
-            MoveToPoint(hotSpotPoint);
+            HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
             
         }
 
@@ -1783,9 +1522,7 @@ namespace ZapRecorder2
                 listTestHotspots.SelectedIndex--;
             }
 
-            WoWPoint hotSpotPoint = getWowPointFromHotspot(listTestHotspots.SelectedItem.ToString());
-
-            MoveToPoint(hotSpotPoint);
+            HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
         }
 
         private void btnNextHotspot_Click(object sender, EventArgs e)
@@ -1805,16 +1542,15 @@ namespace ZapRecorder2
                 listTestHotspots.SelectedIndex++;
             }
 
-            WoWPoint hotSpotPoint = getWowPointFromHotspot(listTestHotspots.SelectedItem.ToString());
-
-            MoveToPoint(hotSpotPoint);
+            HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
             
         }
 
         private void btnReplaceHotspot_Click(object sender, EventArgs e)
         {
             int storedIndex = listTestHotspots.SelectedIndex;
-            hotspotsList[listTestHotspots.SelectedIndex] = getHotspot();
+
+            HotspotMgr.Replace(storedIndex);
             UpdateHotspotList();
 
             listTestHotspots.SelectedIndex = storedIndex;
@@ -1823,12 +1559,14 @@ namespace ZapRecorder2
 
         private void btnAddHotspotAtIndex_Click(object sender, EventArgs e)
         {
-            AddHotspot(listTestHotspots.SelectedIndex);
+            HotspotMgr.Add(listTestHotspots.SelectedIndex);
+            UpdateHotspotList(); 
+
         }
         
         private void btnDeleteHotspot_Click(object sender, EventArgs e)
         {
-            if (listTestHotspots.Items.Count < 1)
+            if (HotspotMgr.Count < 1)
             {
                 ZapLog("You do not have any hotspots to go to.");
                 return;
@@ -1840,16 +1578,113 @@ namespace ZapRecorder2
                 return;
             }
 
-            hotspotsList.RemoveAt(listTestHotspots.SelectedIndex);
+            HotspotMgr.Delete(listTestHotspots.SelectedIndex);
             UpdateHotspotList();
 
         }
         
         #endregion
 
-        
+        #region Settings Tab
 
-        
+
+        private void onTop_CheckedChanged(object sender, EventArgs e)
+        {
+            if (onTop.Checked == true)
+            {
+                this.TopMost = true;
+            }
+            else
+            {
+                this.TopMost = false;
+            }
+        }
+
+        private void chkChatMessage_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkChatMessage.Checked == true)
+            {
+                //WoWHelper
+                Logging.Write("Turning on chat messages.");
+            }
+            else
+            {
+                chatMessage = false;
+                ZapLog("Turning off chat messages.");
+            }
+        }
+
+        #endregion
+
+        #region Helpers
+
+        public bool MessageBoxHelper(string text, string title)
+        {
+            DialogResult dialog = MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (dialog == DialogResult.Yes)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool MessageBoxHelper(string text, string title, MessageBoxButtons boxButtons)
+        {
+            DialogResult dialog = MessageBox.Show(text, title, boxButtons, MessageBoxIcon.Question);
+
+            if ((dialog == DialogResult.Yes) || (dialog == DialogResult.OK))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool MessageBoxHelper(string text, string title, MessageBoxButtons boxButtons, MessageBoxIcon boxIcon)
+        {
+            DialogResult dialog = MessageBox.Show(text, title, boxButtons, boxIcon);
+
+            if ((dialog == DialogResult.Yes) || (dialog == DialogResult.OK))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void ZapLog(string msg)
+        {
+            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] - " + msg + Environment.NewLine;
+        }
+
+        public void ZapException(Exception ex)
+        {
+            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] [ERROR] - " + ex.Message + Environment.NewLine;
+        }
+
+        public void ZapException(Exception ex, string exLocation)
+        {
+            txtLog.Text += "[" + DateTime.Now.ToLongTimeString() + "] [ERROR in " + exLocation + "] - " + ex.Message + Environment.NewLine;
+        }
+
+        public void ShowWoWChatMessage(string message)
+        {
+            //if (chatMessage == true)
+            //{
+            Lua.DoString("getglobal(\"ChatFrame1\"):AddMessage(\"|cff2dbbc4ZapRecorder2: |cffffffff " + message + "\",0, 0, 0, 0);");
+            //}
+
+        }
+
+        #endregion
 
 
 

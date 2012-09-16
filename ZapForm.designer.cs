@@ -118,6 +118,8 @@
             this.dlgSaveFile = new System.Windows.Forms.SaveFileDialog();
             this.txtLog = new System.Windows.Forms.RichTextBox();
             this.helpTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.btnLoadDefault = new System.Windows.Forms.Button();
+            this.btnSaveAsDefault = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -311,6 +313,8 @@
             // 
             // tabProfileInfo
             // 
+            this.tabProfileInfo.Controls.Add(this.btnSaveAsDefault);
+            this.tabProfileInfo.Controls.Add(this.btnLoadDefault);
             this.tabProfileInfo.Controls.Add(this.txtFactions);
             this.tabProfileInfo.Controls.Add(this.label11);
             this.tabProfileInfo.Controls.Add(this.txtMaxLevel);
@@ -1040,6 +1044,7 @@
             this.onTop.TabIndex = 13;
             this.onTop.Text = "OnTop";
             this.onTop.UseVisualStyleBackColor = true;
+            this.onTop.CheckedChanged += new System.EventHandler(this.onTop_CheckedChanged);
             // 
             // playSound
             // 
@@ -1068,6 +1073,24 @@
             this.txtLog.Size = new System.Drawing.Size(604, 167);
             this.txtLog.TabIndex = 20;
             this.txtLog.Text = "";
+            // 
+            // btnLoadDefault
+            // 
+            this.btnLoadDefault.Location = new System.Drawing.Point(389, 134);
+            this.btnLoadDefault.Name = "btnLoadDefault";
+            this.btnLoadDefault.Size = new System.Drawing.Size(95, 23);
+            this.btnLoadDefault.TabIndex = 32;
+            this.btnLoadDefault.Text = "Load Default";
+            this.btnLoadDefault.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveAsDefault
+            // 
+            this.btnSaveAsDefault.Location = new System.Drawing.Point(490, 134);
+            this.btnSaveAsDefault.Name = "btnSaveAsDefault";
+            this.btnSaveAsDefault.Size = new System.Drawing.Size(95, 23);
+            this.btnSaveAsDefault.TabIndex = 33;
+            this.btnSaveAsDefault.Text = "Save as Default";
+            this.btnSaveAsDefault.UseVisualStyleBackColor = true;
             // 
             // ZapMainForm
             // 
@@ -1189,6 +1212,8 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox txtFactions;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button btnSaveAsDefault;
+        private System.Windows.Forms.Button btnLoadDefault;
     }
 }
 
