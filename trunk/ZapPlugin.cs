@@ -7,7 +7,7 @@ using Styx.Plugins;
 using Styx.Common;
 using Styx.WoWInternals;
 
-using BadWolf;
+//using BadWolf;
 
 using System.Windows.Media;
 
