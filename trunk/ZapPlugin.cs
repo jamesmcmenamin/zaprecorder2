@@ -16,8 +16,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 2, 2); } }
-        public int SubVersion { get { return int.Parse("$Revision$".Replace("$Revision$","")); } }
+        public override Version Version { get { return new Version(1, 2, 3); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -27,13 +26,13 @@ namespace ZapRecorder2
         public ZapMainForm mainForm;
         public static bool isHidden = false;
 
-        private BadWolf_Updater Updater;
+        //private BadWolf_Updater Updater;
 
 
         public override void Initialize()
         {
             
-            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString() + " $" + SubVersion);
+            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
 
             /*Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
 
