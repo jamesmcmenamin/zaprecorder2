@@ -7,6 +7,8 @@ using Styx.Plugins;
 using Styx.Common;
 using Styx.WoWInternals;
 
+using BadWolf;
+
 using System.Windows.Media;
 
 namespace ZapRecorder2
@@ -15,7 +17,7 @@ namespace ZapRecorder2
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
         public override Version Version { get { return new Version(1, 2, 2); } }
-        public static string SubVersion { get { return "$Revision$"; } }
+        public int SubVersion { get { return int.Parse("$Revision$".Replace("$Revision$","")); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -25,11 +27,25 @@ namespace ZapRecorder2
         public ZapMainForm mainForm;
         public static bool isHidden = false;
 
+        private BadWolf_Updater Updater;
+
 
         public override void Initialize()
         {
-            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
-            Logging.Write(Colors.CornflowerBlue, "Attached hotkey to ZapRecorder2");
+            Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
+
+            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString() + " $" + SubVersion);
+
+            if (Updater.UpdateAvailable(SubVersion))
+            {
+                Logging.Write("[ZapRecorder2] Update is available! Please check settings tab to download");
+            }
+            else
+            {
+                Logging.Write("ZapRecorder2 is up to date!");
+            }
+
+
        } 
 
         public override void Pulse()
