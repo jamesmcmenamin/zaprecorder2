@@ -16,7 +16,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 2, 0); } }
+        public override Version Version { get { return new Version(1, 2, 1); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -44,11 +44,20 @@ namespace ZapRecorder2
             
             try
             {
-                Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
+                Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/","ZapRecorder");
 
                 if (Updater.UpdateAvailable())
                 {
                     Logging.Write("[ZapRecorder2] Update to $" + Updater.GetNewestRev().ToString() + " is available! You are on $" + Updater.CurrentRev.ToString());
+                    Logging.Write("[Zaprecorder2] Starting update process");
+                    if (Updater.Update())
+                    {
+                        Logging.Write("[ZapRecorder2] is now up to date! Please reload HB");
+                    }
+                    else
+                    {
+                        Logging.Write("[ZapRecorder2] Encountered an error trying to auto-update. Please update manually");
+                    }
                 }
                 else
                 {
@@ -57,7 +66,7 @@ namespace ZapRecorder2
                     
                 }
             } catch (Exception ex) {
-                Logging.Write(Colors.Teal,"Unable to check for new ZapRecorder2 update.");
+                Logging.Write(Colors.Teal,"Unable to run ZapRecorder2 update process");
             }
        } 
 
