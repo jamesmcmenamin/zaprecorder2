@@ -14,7 +14,9 @@ namespace BadWolf
     {
         private String trunkURL = "";
         private String pluginDir = "";
+        //private String subPluginDir = "";
         private WebClient client;
+        private int newestRev = 0;
         static readonly Regex LinkPattern = new Regex(@"<li><a href="".+"">(?<ln>.+(?:..))</a></li>", RegexOptions.CultureInvariant);
 
         public BadWolf_Updater(string svnLocation)
@@ -32,7 +34,8 @@ namespace BadWolf
 
             if (revisionMatch.Success == true)
             {
-                return int.Parse(revisionMatch.Groups[1].Value);
+                newestRev = int.Parse(revisionMatch.Groups[1].Value);
+                return newestRev;
             }
             else
             {
@@ -40,8 +43,14 @@ namespace BadWolf
             }
         }
 
-        public bool UpdateAvailable(int revNumber)
+        public bool UpdateAvailable()
         {
+            StreamReader verFile = new StreamReader("BadWolf_Updater.ver");
+            string verString = verFile.ReadToEnd();
+            verFile.Close();
+
+            int revNumber = int.Parse(verString.Replace("$Revision: ", "").Replace(" $", ""));
+            
             return (GetNewestRev() > revNumber);
         }
 
@@ -50,6 +59,23 @@ namespace BadWolf
             return xml.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
         }
 
+        public Boolean Update()
+        {
+            if (newestRev == 0)
+            {
+                newestRev = GetNewestRev();
+            }
+            if (this.DownloadUpdate())
+            {
+                File.CreateText(pluginDir + "\\ZapRecorder\\BadWolf_Updater.ver").Write("$Revision: " + newestRev + " $");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
         public Boolean DownloadUpdate()
         {
             return DownloadUpdate(trunkURL);
@@ -90,7 +116,10 @@ namespace BadWolf
                         }
                         string fileName = newUrl.Replace(remotePath, "");
 
-                        client.DownloadFile(newUrl, directoryName + "\\" + fileName);
+                        if (fileName != "BadWolf_Updater.ver")
+                        {
+                            client.DownloadFile(newUrl, directoryName + "\\" + fileName);
+                        }
                     }
                 }
 

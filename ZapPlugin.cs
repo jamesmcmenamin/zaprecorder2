@@ -35,9 +35,9 @@ namespace ZapRecorder2
             
             Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString() + " $" + SubVersion);
 
-            /*Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
+            Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
 
-            if (Updater.UpdateAvailable(SubVersion))
+            if (Updater.UpdateAvailable())
             {
                 Logging.Write("[ZapRecorder2] Update is available! Please check settings tab to download");
                 if (Updater.DownloadUpdate())
@@ -53,7 +53,7 @@ namespace ZapRecorder2
             {
                 Logging.Write("ZapRecorder2 is up to date!");
             }
-             */
+             
 
 
        } 
