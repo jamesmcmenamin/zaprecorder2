@@ -70,6 +70,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BadWolf_Updater.cs" />
     <Compile Include="Classes\BlackspotHandler.cs" />
     <Compile Include="Classes\HotspotHandler.cs" />
     <Compile Include="Classes\MailboxHandler.cs" />
