@@ -137,7 +137,7 @@ namespace BadWolf
                     }
                     else
                     {
-                        string relativePath = pluginDir + remotePath.Replace(trunkURL, "").Replace('/', '\\');
+                        string relativePath = subPluginDir + remotePath.Replace(trunkURL, "").Replace('/', '\\');
 
                         String directoryName = Path.GetDirectoryName(relativePath);
                         DirectoryInfo info = new DirectoryInfo(relativePath);
