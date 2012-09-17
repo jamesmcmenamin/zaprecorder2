@@ -48,7 +48,7 @@ namespace ZapRecorder2
 
                 if (Updater.UpdateAvailable())
                 {
-                    Logging.Write("[ZapRecorder2] Update is available! Please check thread to download. Auto-update soon!");
+                    Logging.Write("[ZapRecorder2] Update to $" + Updater.GetNewestRev().ToString() + " is available! You are on $" + Updater.CurrentRev.ToString());
                 }
                 else
                 {
