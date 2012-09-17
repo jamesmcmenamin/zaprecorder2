@@ -49,10 +49,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Honorbuddy, Version=2.5.6158.407, Culture=neutral, PublicKeyToken=50a565ab5c01ae50, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <ExecutableExtension>.exe</ExecutableExtension>
-      <HintPath>..\..\Honorbuddy\Honorbuddy.exe</HintPath>
+    <Reference Include="Honorbuddy">
+      <HintPath>..\..\Honorbuddy.exe</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
@@ -66,7 +64,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Tripper.Tools">
-      <HintPath>..\..\..\..\Downloads\Honorbuddy 2.5.6158.407\Tripper.Tools.dll</HintPath>
+      <HintPath>..\..\Tripper.Tools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
