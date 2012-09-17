@@ -35,7 +35,7 @@ namespace ZapRecorder2
             
             Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString() + " $" + SubVersion);
 
-            Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
+            /*Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
 
             if (Updater.UpdateAvailable())
             {
@@ -53,9 +53,7 @@ namespace ZapRecorder2
             {
                 Logging.Write("ZapRecorder2 is up to date!");
             }
-             
-
-
+             * */           
        } 
 
         public override void Pulse()
