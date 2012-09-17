@@ -16,7 +16,7 @@ namespace BadWolf
     {
         private String trunkURL = "";
         private String pluginDir = "";
-        //private String subPluginDir = "";
+        private String subPluginDir = "";
         private WebClient client;
         private int newestRev = 0;
         private int currentRev = 0;
@@ -29,16 +29,17 @@ namespace BadWolf
                 return (currentRev == 0) ? GetCurrentRev() : currentRev;
             }
         }
-        public BadWolf_Updater(string svnLocation)
+        public BadWolf_Updater(string svnLocation, string pluginFolderName)
         {
             client = new WebClient();
             trunkURL = svnLocation;
             pluginDir = Application.StartupPath + "\\Plugins\\";
+            subPluginDir = pluginDir + pluginFolderName + "\\";
         }
 
         public int GetCurrentRev()
         {
-            StreamReader verFile = new StreamReader(Application.StartupPath + "\\Plugins\\ZapRecorder\\BadWolf_Updater.ver");
+            StreamReader verFile = new StreamReader(subPluginDir + "BadWolf_Updater.ver");
             string verString = verFile.ReadToEnd();
             verFile.Close();
 
@@ -75,7 +76,7 @@ namespace BadWolf
         public void WriteNewRevFile(int newRev)
         {
             Logging.Write("Writing new rev file with " + newRev.ToString());
-            StreamWriter file = new StreamWriter(@"" + Application.StartupPath + "\\Plugins\\ZapRecorder\\BadWolf_Updater.ver");
+            StreamWriter file = new StreamWriter(@"" + subPluginDir + "BadWolf_Updater.ver");
             file.Write("$Revision: " + newRev.ToString() + " $");
             file.Close();      
         }
@@ -98,7 +99,7 @@ namespace BadWolf
             }
             if (this.DownloadUpdate())
             {
-                //File.CreateText(pluginDir + "\\ZapRecorder\\BadWolf_Updater.ver").Write("$Revision: " + newestRev + " $");
+                WriteNewRevFile(newestRev);
                 return true;
             }
             else
