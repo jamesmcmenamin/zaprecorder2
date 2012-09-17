@@ -7,7 +7,7 @@ using Styx.Plugins;
 using Styx.Common;
 using Styx.WoWInternals;
 
-//using BadWolf;
+using BadWolf;
 
 using System.Windows.Media;
 
@@ -16,7 +16,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 2, 3); } }
+        public override Version Version { get { return new Version(1, 2, 6); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -26,33 +26,57 @@ namespace ZapRecorder2
         public ZapMainForm mainForm;
         public static bool isHidden = false;
 
-        //private BadWolf_Updater Updater;
+        private BadWolf_Updater Updater;
 
 
         public override void Initialize()
         {
-            
-            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
-
-            /*Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
-
-            if (Updater.UpdateAvailable())
+            if (hasBeenInitialized)
             {
-                Logging.Write("[ZapRecorder2] Update is available! Please check settings tab to download");
-                if (Updater.DownloadUpdate())
+                return;
+            }
+
+            hasBeenInitialized = true;
+            
+            Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
+            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString() + " $" + Updater.GetCurrentRev().ToString());
+            
+            try
+            {
+                Logging.Write(Colors.Teal, "ZapRecorder2 SVN is " + Updater.GetCurrentRev());
+            }
+            catch (Exception ex)
+            {
+                Logging.Write(Colors.Teal, "Unable to get current revision: " + ex.Message);
+            }
+
+            //Logging.Write(Updater.CurrentRev.ToString());
+            try
+            {
+                if (Updater.UpdateAvailable())
                 {
-                    Logging.Write("[ZapRecorder2] Update complete!");
+                    Logging.Write("[ZapRecorder2] Update is available! Please check thread to download.");
+                    /*if (Updater.DownloadUpdate())
+                    {
+                        Logging.Write("[ZapRecorder2] Update complete!");
+                    }
+                    else
+                    {
+                        Logging.Write("[ZapRecorder2] Failed to update");
+                    }
+                     * */
                 }
                 else
                 {
-                    Logging.Write("[ZapRecorder2] Failed to update");
+                    Logging.Write("ZapRecorder2 is up to date!");
+
+                    
                 }
+
+                
+            } catch (Exception ex) {
+                Logging.Write("[ZapRecorder2] : " + ex.Message);
             }
-            else
-            {
-                Logging.Write("ZapRecorder2 is up to date!");
-            }
-             * */           
        } 
 
         public override void Pulse()

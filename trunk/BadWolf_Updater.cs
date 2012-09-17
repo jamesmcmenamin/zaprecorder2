@@ -8,6 +8,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
+using Styx.Common;
+
 namespace BadWolf
 {
     class BadWolf_Updater
@@ -17,13 +19,40 @@ namespace BadWolf
         //private String subPluginDir = "";
         private WebClient client;
         private int newestRev = 0;
+        private int currentRev = 0;
         static readonly Regex LinkPattern = new Regex(@"<li><a href="".+"">(?<ln>.+(?:..))</a></li>", RegexOptions.CultureInvariant);
 
+        public int CurrentRev
+        {
+            get
+            {
+                return (currentRev == 0) ? GetCurrentRev() : currentRev;
+            }
+        }
         public BadWolf_Updater(string svnLocation)
         {
             client = new WebClient();
             trunkURL = svnLocation;
             pluginDir = Application.StartupPath + "\\Plugins\\";
+        }
+
+        public int GetCurrentRev()
+        {
+            StreamReader verFile = new StreamReader(Application.StartupPath + "\\Plugins\\ZapRecorder\\BadWolf_Updater.ver");
+            string verString = verFile.ReadToEnd();
+            verFile.Close();
+
+            try
+            {
+                int currentRev = int.Parse(verString.Replace("$Revision: ", "").Replace(" $", ""));
+                return currentRev;
+            }
+            catch
+            {
+                return 0;
+            }
+            
+
         }
 
         public int GetNewestRev()
@@ -43,15 +72,17 @@ namespace BadWolf
             }
         }
 
+        public void WriteNewRevFile(int newRev)
+        {
+            Logging.Write("Writing new rev file with " + newRev.ToString());
+            StreamWriter file = new StreamWriter(@"" + Application.StartupPath + "\\Plugins\\ZapRecorder\\BadWolf_Updater.ver");
+            file.Write("$Revision: " + newRev.ToString() + " $");
+            file.Close();      
+        }
+
         public bool UpdateAvailable()
         {
-            StreamReader verFile = new StreamReader("BadWolf_Updater.ver");
-            string verString = verFile.ReadToEnd();
-            verFile.Close();
-
-            int revNumber = int.Parse(verString.Replace("$Revision: ", "").Replace(" $", ""));
-            
-            return (GetNewestRev() > revNumber);
+            return (GetNewestRev() > GetCurrentRev());
         }
 
         static string RemoveXmlEscapes(string xml)
@@ -67,7 +98,7 @@ namespace BadWolf
             }
             if (this.DownloadUpdate())
             {
-                File.CreateText(pluginDir + "\\ZapRecorder\\BadWolf_Updater.ver").Write("$Revision: " + newestRev + " $");
+                //File.CreateText(pluginDir + "\\ZapRecorder\\BadWolf_Updater.ver").Write("$Revision: " + newestRev + " $");
                 return true;
             }
             else
