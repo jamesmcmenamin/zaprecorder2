@@ -39,6 +39,14 @@ namespace ZapRecorder2
             if (Updater.UpdateAvailable(SubVersion))
             {
                 Logging.Write("[ZapRecorder2] Update is available! Please check settings tab to download");
+                if (Updater.DownloadUpdate())
+                {
+                    Logging.Write("[ZapRecorder2] Update complete!");
+                }
+                else
+                {
+                    Logging.Write("[ZapRecorder2] Failed to update");
+                }
             }
             else
             {
