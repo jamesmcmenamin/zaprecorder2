@@ -16,7 +16,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 2, 6); } }
+        public override Version Version { get { return new Version(1, 2, 0); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -38,44 +38,26 @@ namespace ZapRecorder2
 
             hasBeenInitialized = true;
             
-            Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
-            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString() + " $" + Updater.GetCurrentRev().ToString());
+            
+            Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
+            
             
             try
             {
-                Logging.Write(Colors.Teal, "ZapRecorder2 SVN is " + Updater.GetCurrentRev());
-            }
-            catch (Exception ex)
-            {
-                Logging.Write(Colors.Teal, "Unable to get current revision: " + ex.Message);
-            }
+                Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/");
 
-            //Logging.Write(Updater.CurrentRev.ToString());
-            try
-            {
                 if (Updater.UpdateAvailable())
                 {
-                    Logging.Write("[ZapRecorder2] Update is available! Please check thread to download.");
-                    /*if (Updater.DownloadUpdate())
-                    {
-                        Logging.Write("[ZapRecorder2] Update complete!");
-                    }
-                    else
-                    {
-                        Logging.Write("[ZapRecorder2] Failed to update");
-                    }
-                     * */
+                    Logging.Write("[ZapRecorder2] Update is available! Please check thread to download. Auto-update soon!");
                 }
                 else
                 {
-                    Logging.Write("ZapRecorder2 is up to date!");
+                    Logging.Write("ZapRecorder2 is at Rev $" + Updater.CurrentRev.ToString() + " and up to date!");
 
                     
                 }
-
-                
             } catch (Exception ex) {
-                Logging.Write("[ZapRecorder2] : " + ex.Message);
+                Logging.Write(Colors.Teal,"Unable to check for new ZapRecorder2 update.");
             }
        } 
 
