@@ -17,6 +17,7 @@ namespace ZapRecorder2
 {
     class ZapBlackspot
     {
+        private LocalPlayer intMe = StyxWoW.Me;
 
         private List<WoWPoint> blackspotList = new List<WoWPoint>();
 
@@ -38,7 +39,7 @@ namespace ZapRecorder2
 
         public void Add()
         {
-            blackspotList.Add(ObjectManager.Me.Location);
+            blackspotList.Add(intMe.Location);
         }
 
         public void Add(WoWPoint newBlackspot)
@@ -48,7 +49,7 @@ namespace ZapRecorder2
 
         public void Add(int index)
         {
-            blackspotList.Insert(index, ObjectManager.Me.Location);
+            blackspotList.Insert(index, intMe.Location);
         }
 
         public void Add(WoWPoint newBlackspot, int index)
@@ -86,7 +87,7 @@ namespace ZapRecorder2
 
         public void Replace(int index)
         {
-            blackspotList[index] = ObjectManager.Me.Location;
+            blackspotList[index] = intMe.Location;
         }
 
         public void Replace(int index, WoWPoint newPoint)

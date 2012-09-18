@@ -15,6 +15,7 @@ using System.Threading;
 using Styx;
 using Styx.Common;
 using Styx.WoWInternals;
+using Styx.WoWInternals.WoWObjects;
 using Styx.Pathing;
 using Styx.Helpers;
 
@@ -32,6 +33,8 @@ namespace ZapRecorder2
         public WoWPoint oldLocation = new WoWPoint(0, 0, 0);
         public bool isRecording = false;
         public bool chatMessage = true;
+
+        private LocalPlayer intMe = StyxWoW.Me;
 
         private ZapHotspot HotspotMgr;
         private ZapBlackspot BlackspotMgr;
@@ -573,7 +576,7 @@ namespace ZapRecorder2
                         */
                     
                     
-                        oldLocation = new WoWPoint(ObjectManager.Me.Location.X, ObjectManager.Me.Location.Y, ObjectManager.Me.Location.Z);
+                        oldLocation = new WoWPoint(intMe.Location.X, intMe.Location.Y, intMe.Location.Z);
 
                         HotspotMgr.Add();
                         UpdateHotspotList();
@@ -610,7 +613,7 @@ namespace ZapRecorder2
         {
             try
             {
-                return (ObjectManager.Me.Location.Distance(oldLocation) > Convert.ToInt32(addIfMovedTextbox.Text));
+                return (intMe.Location.Distance(oldLocation) > Convert.ToInt32(addIfMovedTextbox.Text));
             }
             catch (Exception ex)
             {
@@ -691,7 +694,7 @@ namespace ZapRecorder2
 
                         if (txtProfileName.Text.Trim() == "")
                         {
-                            writer.WriteLine("<Name>" + ObjectManager.Me.ZoneText + "</Name>");
+                            writer.WriteLine("<Name>" + intMe.ZoneText + "</Name>");
                         }
                         else
                         {
@@ -1000,7 +1003,7 @@ namespace ZapRecorder2
 
         private void btnLocRefresh_Click(object sender, EventArgs e)
         {
-            lblLocation.Text = "X = " + ObjectManager.Me.Location.X + ", Y = " + ObjectManager.Me.Location.Y + ", Z = " + ObjectManager.Me.Location.Z;
+            lblLocation.Text = "X = " + intMe.Location.X + ", Y = " + intMe.Location.Y + ", Z = " + intMe.Location.Z;
         }
 
 
@@ -1393,18 +1396,18 @@ namespace ZapRecorder2
         private void AddRepairMerchant()
         {
 
-            if (ObjectManager.Me.GotTarget == true)
+            if (intMe.GotTarget == true)
             {
-                string merchantName = ObjectManager.Me.CurrentTarget.Name;
+                string merchantName = intMe.CurrentTarget.Name;
 
-                if (ObjectManager.Me.CurrentTarget.IsRepairMerchant == true)
+                if (intMe.CurrentTarget.IsRepairMerchant == true)
                 {
 
                     if (MessageBoxHelper("Do you want to add " + merchantName + " as a repair merchant?\n\n", "Confirm Repair NPC") == true)
                     {
                         ZapLog("Adding " + merchantName + " as a repair merchant");
 
-                        RepairMgr.Add(ObjectManager.Me.CurrentTarget);
+                        RepairMgr.Add(intMe.CurrentTarget);
                         UpdateRepairList();
 
                         // Remove the WoW message because it is unlikely they will have WoW open while clicking add button
@@ -1416,7 +1419,7 @@ namespace ZapRecorder2
                     ZapLog("Cannot add " + merchantName + " as they are not a repair merchant");
                 }
             }
-            else if (ObjectManager.Me.GotTarget != true)
+            else if (intMe.GotTarget != true)
             {
                 ZapLog("Cannot add repair merchant as you do not have a target!");
             }
