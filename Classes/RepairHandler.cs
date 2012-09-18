@@ -21,7 +21,7 @@ namespace ZapRecorder2
         private WoWPoint Location;
         private string Name;
         public uint Entry;
-
+        private LocalPlayer intMe = StyxWoW.Me;
         private static string Type = "Repair";
 
         public RepairMerchant(WoWUnit targetUnit)
@@ -50,6 +50,7 @@ namespace ZapRecorder2
     {
 
         private List<RepairMerchant> merchantList = new List<RepairMerchant>();
+        private LocalPlayer intMe = StyxWoW.Me;
 
         public List<RepairMerchant> Merchants
         {
@@ -69,7 +70,7 @@ namespace ZapRecorder2
 
         public void Add()
         {
-            merchantList.Add(new RepairMerchant(ObjectManager.Me.CurrentTarget));
+            merchantList.Add(new RepairMerchant(intMe.CurrentTarget));
         }
 
         public void Add(WoWUnit targetUnit)
@@ -107,7 +108,7 @@ namespace ZapRecorder2
 
         public void Replace(int index)
         {
-            merchantList[index] = new RepairMerchant(ObjectManager.Me.CurrentTarget);
+            merchantList[index] = new RepairMerchant(intMe.CurrentTarget);
         }
 
         public void Replace(int index, WoWUnit newUnit)

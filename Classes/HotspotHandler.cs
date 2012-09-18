@@ -18,6 +18,7 @@ namespace ZapRecorder2
     class ZapHotspot
     {
         private List<WoWPoint> hotspotList = new List<WoWPoint>();
+        private LocalPlayer intMe = StyxWoW.Me;
 
         public List<WoWPoint> Hotspots
         {
@@ -37,7 +38,7 @@ namespace ZapRecorder2
 
         public void Add()
         {
-            hotspotList.Add(ObjectManager.Me.Location);
+            hotspotList.Add(intMe.Location);
         }
 
         public void Add(WoWPoint newHotspot)
@@ -47,7 +48,7 @@ namespace ZapRecorder2
 
         public void Add(int index)
         {
-            hotspotList.Insert(index, ObjectManager.Me.Location);
+            hotspotList.Insert(index, intMe.Location);
         }
         
         public void Add(WoWPoint newHotspot, int index)
@@ -90,7 +91,7 @@ namespace ZapRecorder2
 
         public void Replace(int index)
         {
-            hotspotList[index] = ObjectManager.Me.Location;
+            hotspotList[index] = intMe.Location;
         }
 
         public void Replace(int index, WoWPoint newPoint)
@@ -167,7 +168,7 @@ namespace ZapRecorder2
         private float PlayerDistanceTo(WoWPoint hotspot)
         {
 
-            return ObjectManager.Me.GetPosition().Distance(hotspot);
+            return intMe.GetPosition().Distance(hotspot);
         }
 
     }

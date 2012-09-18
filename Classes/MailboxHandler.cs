@@ -18,6 +18,8 @@ namespace ZapRecorder2
     class ZapMailbox
     {
 
+        private LocalPlayer intMe = StyxWoW.Me; 
+        
         private List<WoWPoint> mailboxList = new List<WoWPoint>();
 
         public List<WoWPoint> Mailboxes
@@ -38,7 +40,7 @@ namespace ZapRecorder2
 
         public void Add()
         {
-            mailboxList.Add(ObjectManager.Me.Location);
+            mailboxList.Add(intMe.Location);
         }
 
         public void Add(WoWPoint newMailbox)
@@ -48,7 +50,7 @@ namespace ZapRecorder2
 
         public void Add(int index)
         {
-            mailboxList.Insert(index, ObjectManager.Me.Location);
+            mailboxList.Insert(index, intMe.Location);
         }
 
         public void Add(WoWPoint newMailbox, int index)
@@ -86,7 +88,7 @@ namespace ZapRecorder2
 
         public void Replace(int index)
         {
-            mailboxList[index] = ObjectManager.Me.Location;
+            mailboxList[index] = intMe.Location;
         }
 
         public void Replace(int index, WoWPoint newPoint)
