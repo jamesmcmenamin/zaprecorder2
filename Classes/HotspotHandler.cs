@@ -116,12 +116,22 @@ namespace ZapRecorder2
 
             int loopCounter = 0;
             int max_loops = 100;
-            while (!StyxWoW.Me.ToUnit().IsMoving && (loopCounter < max_loops))
+
+            Logging.Write("Attempting to move to X=" + goToPoint.X + ", Y=" + goToPoint.Y + ", Z=" + goToPoint.Z);
+
+            Flightor.MoveTo(goToPoint); 
+            
+            /*while (!StyxWoW.Me.ToUnit().IsMoving)
             {
+                if (loopCounter > max_loops)
+                {
+                    throw new Exception("Flightor.Move to failed after " + max_loops + " attemps.");
+                }
                 Flightor.MoveTo(goToPoint);
-                Thread.Sleep(5);
+                Thread.Sleep(10);
                 loopCounter++;
             }
+             * */
 
             //WoWPoint moveTo = new WoWPoint(targetXLocation, targetYLocation, targetZLocation);
             //Flightor.MoveTo(moveTo);

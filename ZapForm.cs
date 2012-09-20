@@ -704,9 +704,9 @@ namespace ZapRecorder2
                         writer.WriteLine("<MinFreeBagSlots>" + txtMinFreeBagSlots.Text + "</MinFreeBagSlots>");
                         writer.WriteLine("");
 
-                        writer.WriteLine("<MinLevel>1</MinLevel>");
-                        writer.WriteLine("<MaxLevel>86</MaxLevel>");
-                        writer.WriteLine("<Factions>99999</Factions>");
+                        writer.WriteLine("<MinLevel>" + txtMinLevel + "</MinLevel>");
+                        writer.WriteLine("<MaxLevel>" + txtMaxLevel + "</MaxLevel>");
+                        writer.WriteLine("<Factions>" + txtFactions + "</Factions>");
                         writer.WriteLine("");
 
 
@@ -915,6 +915,8 @@ namespace ZapRecorder2
         {
             if (MessageBoxHelper("Are you sure you wish to clear everything from this profile?", this.Text) == true)
             {
+                txtProfileAuthor.Text = "";
+                txtProfileName.Text = "";
                 HotspotMgr.Clear();
                 UpdateHotspotList();
 
@@ -1504,7 +1506,14 @@ namespace ZapRecorder2
                 return;
             }
 
-            HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
+            try
+            {
+                HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "HotspotMgr.GoTo");
+            }
             
         }
 
@@ -1525,7 +1534,14 @@ namespace ZapRecorder2
                 listTestHotspots.SelectedIndex--;
             }
 
-            HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
+            try
+            {
+                HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "HotspotMgr.GoTo");
+            }
         }
 
         private void btnNextHotspot_Click(object sender, EventArgs e)
@@ -1545,7 +1561,14 @@ namespace ZapRecorder2
                 listTestHotspots.SelectedIndex++;
             }
 
-            HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
+            try
+            {
+                HotspotMgr.GoTo(HotspotMgr.AtIndex(listTestHotspots.SelectedIndex));
+            }
+            catch (Exception ex)
+            {
+                ZapException(ex, "HotspotMgr.GoTo");
+            }
             
         }
 
