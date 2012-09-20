@@ -705,7 +705,7 @@ namespace ZapRecorder2
                         writer.WriteLine("");
 
                         writer.WriteLine("<MinLevel>" + txtMinLevel.Text + "</MinLevel>");
-                        writer.WriteLine("<MaxLevel>" + txtMaxLevel.Text + "</MaxLevel>");
+                        writer.WriteLine("<MaxLevel>" + txtMaxLevel.Text + "</MaxLevel>"); 
                         writer.WriteLine("<Factions>" + txtFactions.Text + "</Factions>");
                         writer.WriteLine("");
 
