@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using Styx;
 using Styx.Plugins;
 using Styx.Common;
@@ -16,7 +17,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 2, 1); } }
+        public override Version Version { get { return new Version(1, 2, 2); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -29,6 +30,7 @@ namespace ZapRecorder2
         private BadWolf_Updater Updater;
 
 
+        
         public override void Initialize()
         {
             if (hasBeenInitialized)
@@ -40,8 +42,8 @@ namespace ZapRecorder2
             
             
             Logging.Write(Colors.Teal, "Loaded ZapRecorder2 by BadWolf v" + Version.ToString());
-            
-            
+
+    
             try
             {
                 Updater = new BadWolf_Updater("https://zaprecorder2.googlecode.com/svn/trunk/","ZapRecorder");
@@ -68,7 +70,13 @@ namespace ZapRecorder2
             } catch (Exception ex) {
                 Logging.Write(Colors.Teal,"Unable to run ZapRecorder2 update process");
             }
-       } 
+       }
+
+        public static void HandleHotkey()
+        {
+
+            Logging.Write("Hotkey received");
+        }
 
         public override void Pulse()
         {
