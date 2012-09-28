@@ -73,6 +73,7 @@
     <Compile Include="Classes\HotspotHandler.cs" />
     <Compile Include="Classes\MailboxHandler.cs" />
     <Compile Include="Classes\RepairHandler.cs" />
+    <Compile Include="Classes\RoutesBuddy.cs" />
     <Compile Include="ZapPlugin.cs" />
     <Compile Include="ZapForm.cs">
       <SubType>Form</SubType>

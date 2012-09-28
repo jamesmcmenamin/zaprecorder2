@@ -159,6 +159,7 @@ namespace BadWolf
             }
             catch (Exception ex)
             {
+                Logging.Write(LogLevel.Diagnostic, "[ZapRecorder2]: Exception in DownloadUpload " + ex.Message);
                 return false;
             }
         }

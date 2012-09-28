@@ -112,10 +112,10 @@ namespace ZapRecorder2
         //TODO - Fix Hotspot GOTO
         public void GoTo(WoWPoint goToPoint)
         {
-            Styx.WoWInternals.WoWMovement.MoveStop();
+            //Styx.WoWInternals.WoWMovement.MoveStop();
 
-            int loopCounter = 0;
-            int max_loops = 100;
+            //int loopCounter = 0;
+            //int max_loops = 100;
 
             Logging.Write("Attempting to move to X=" + goToPoint.X + ", Y=" + goToPoint.Y + ", Z=" + goToPoint.Z);
 

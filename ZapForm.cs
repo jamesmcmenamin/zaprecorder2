@@ -1418,7 +1418,20 @@ namespace ZapRecorder2
                 }
                 else
                 {
-                    ZapLog("Cannot add " + merchantName + " as they are not a repair merchant");
+                    if (merchantName == "Unknown NPC")
+                    {
+                        Logging.WriteDiagnostic("Uknown NPC info: ");
+                        Logging.WriteDiagnostic("NPC GUID: " + intMe.CurrentTargetGuid.ToString());
+                        Logging.WriteDiagnostic("NPC Name: " + intMe.CurrentTarget.Name.ToString());
+                        Logging.WriteDiagnostic("NPC Loc: X=" + intMe.CurrentTarget.Location.X.ToString() + ", Y=" + intMe.CurrentTarget.Location.X.ToString() + ", Z=" + intMe.CurrentTarget.Location.Z.ToString());
+                        Logging.WriteDiagnostic("NPC Type: " + intMe.CurrentTarget.Type.ToString());
+
+                        ZapLog("NPC shows as 'Unknown NPC'. This is an existing issue with HB. Please send a log to BadWolf on the forums! Thank you.");
+                    }
+                    else
+                    {
+                        ZapLog("Cannot add " + merchantName + " as they are not a repair merchant");
+                    }
                 }
             }
             else if (intMe.GotTarget != true)
