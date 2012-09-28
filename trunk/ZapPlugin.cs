@@ -17,7 +17,7 @@ namespace ZapRecorder2
     public class ZapPlugin : HBPlugin
     {
         public override string Author { get { return "BadWolf (originally by Zapman)"; } }
-        public override Version Version { get { return new Version(1, 2, 2); } }
+        public override Version Version { get { return new Version(1, 3, 0); } }
         public override string Name { get { return "ZapRecorder2"; } }
         public override bool WantButton { get { return true; } }
         public override string ButtonText { get { return "Show Recorder"; } }
@@ -69,6 +69,7 @@ namespace ZapRecorder2
                 }
             } catch (Exception ex) {
                 Logging.Write(Colors.Teal,"Unable to run ZapRecorder2 update process");
+                Logging.Write(LogLevel.Diagnostic, "[ZapRecorder2]: Exception " + ex.Message);
             }
        }
 

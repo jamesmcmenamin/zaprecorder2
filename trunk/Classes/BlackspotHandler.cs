@@ -135,7 +135,7 @@ namespace ZapRecorder2
 
         public string WowPointToHotspot(WoWPoint inPoint)
         {
-            return string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" />", inPoint.X, inPoint.Y, inPoint.Z);
+            return string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", inPoint.X, inPoint.Y, inPoint.Z);
         }
 
         public WoWPoint WoWPointFromBlackspot(string hotspotString)
