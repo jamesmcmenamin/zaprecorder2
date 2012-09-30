@@ -839,7 +839,7 @@ namespace ZapRecorder2
 
                         foreach (WoWPoint blackspotPoint in BlackspotMgr.Blackspots)
                         {
-                            writer.WriteLine(BlackspotMgr.WowPointToHotspot(blackspotPoint));
+                            writer.WriteLine(BlackspotMgr.WowPointToBlackspot(blackspotPoint));
                         }
 
                         writer.WriteLine("</Blackspots>");
@@ -959,7 +959,7 @@ namespace ZapRecorder2
 
                 foreach (WoWPoint blackspotPoint in BlackspotMgr.Blackspots)
                 {
-                    listBlackspots.Items.Add(BlackspotMgr.WowPointToHotspot(blackspotPoint));
+                    listBlackspots.Items.Add(BlackspotMgr.WowPointToBlackspot(blackspotPoint));
                 }
             }
             catch (Exception ex)
