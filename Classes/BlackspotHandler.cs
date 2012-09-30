@@ -133,9 +133,9 @@ namespace ZapRecorder2
             return blackspotList[index];
         }
 
-        public string WowPointToHotspot(WoWPoint inPoint)
+        public string WowPointToBlackspot(WoWPoint inPoint)
         {
-            return string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", inPoint.X, inPoint.Y, inPoint.Z);
+            return string.Format(CultureInfo.CreateSpecificCulture("en-US"), "<Blackspot X=\"{0}\" Y=\"{1}\" Z=\"{2}\" Radius=\"{3}\" />", inPoint.X, inPoint.Y, inPoint.Z, Properties.Settings.Default.blackspotRadius);
         }
 
         public WoWPoint WoWPointFromBlackspot(string hotspotString)
