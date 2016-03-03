@@ -1,0 +1,1 @@
+ZapRecorder2 is a hotspot recording for gatherbuddy2 and grinding profiles for HonorBuddy.
